@@ -1,0 +1,26 @@
+{
+  "name": "taktbridge",
+  "version": "0.1.0",
+  "description": "TaktBridge: Proxy for accessing Trakt.tv API in a function-callable way.",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "node-fetch": "^3.2.10"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.23.0",
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.13.11",
+    "eslint": "^9.23.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-n": "^17.16.2",
+    "globals": "^16.0.0",
+    "nodemon": "^2.0.20"
+  }
+}

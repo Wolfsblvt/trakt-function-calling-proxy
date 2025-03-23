@@ -1,0 +1,10 @@
+# Node modules
+node_modules/
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+
+# dotenv environment variables file
+.env
