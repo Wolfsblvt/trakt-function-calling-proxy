@@ -123,18 +123,18 @@ class CachedTraktClient {
     /**
      * Flush a specific type of cache
      * @param {CACHE_TYPES} cacheType - Type of cache to flush
-     * @returns {number} - Number of items deleted
+     * @returns {Promise<number>} - Number of items deleted
      */
-    flushCache(cacheType) {
-        return cacheManager.flushType(cacheType);
+    async flushCache(cacheType) {
+        return await cacheManager.flushType(cacheType);
     }
 
     /**
      * Flush all caches
-     * @returns {boolean} - Whether the operation was successful
+     * @returns {Promise<boolean>} - Whether the operation was successful
      */
-    flushAllCaches() {
-        return cacheManager.flushAll();
+    async flushAllCaches() {
+        return await cacheManager.flushAll();
     }
 }
 
