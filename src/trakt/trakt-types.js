@@ -1,4 +1,10 @@
 /**
+ * @typedef {Object} ErrorResponse
+ * @property {string} error
+ * @property {string} error_description
+ */
+
+/**
  * @typedef {Object} OAuthTokenResponse
  * @property {string} access_token
  * @property {string} refresh_token

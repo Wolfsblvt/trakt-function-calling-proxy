@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import fs from 'fs';
 
 dotenv.config();
 
@@ -19,3 +20,12 @@ export const config = {
     REFRESH_TOKEN: process.env.REFRESH_TOKEN || '',
     PORT: Number(process.env.PORT) || 3000,
 };
+
+/**
+ * Saves the config persistently to the `.env` file
+ */
+export function saveConfig() {
+    const envFile = Object.entries(config).map(([key, value]) => `${key}=${value}`).join('\n');
+    fs.writeFileSync('.env', envFile);
+}
+

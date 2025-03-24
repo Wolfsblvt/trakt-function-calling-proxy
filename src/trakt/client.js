@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { config } from '../config.js';
+import { config, saveConfig } from '../config.js';
 import { parseJson } from '../utils.js';
 
 /** @import * as Trakt from './trakt-types.js' */
@@ -89,16 +89,19 @@ class TraktClient {
         }
 
         if (!response.ok) {
-            throw new Error(`Trakt API responded with ${response.status}`);
+            /** @type {Trakt.ErrorResponse} */
+            const errorData = await parseJson(response);
+            throw new Error(`Trakt API responded [${response.status} - ${errorData.error}] ${errorData.error_description}`);
         }
 
         return /** @type {T} */ (await response.json());
     }
 
     async #ensureTokenValid() {
-        if (this.#tokenExpiresAt && Date.now() >= this.#tokenExpiresAt) {
-            await this.#refreshAccessToken();
+        if (this.#accessToken && this.#tokenExpiresAt && Date.now() < this.#tokenExpiresAt) {
+            return;
         }
+        await this.#refreshAccessToken();
     }
 
     async #refreshAccessToken() {
@@ -117,7 +120,9 @@ class TraktClient {
                 }),
             });
             if (!response.ok) {
-                throw new Error(`Failed to refresh token: ${response.status}`);
+                /** @type {Trakt.ErrorResponse} */
+                const errorData = await parseJson(response);
+                throw new Error(`Failed to refresh token [${response.status} - ${errorData.error}] ${errorData.error_description}`);
             }
 
             /** @type {Trakt.OAuthTokenResponse} */
@@ -125,6 +130,10 @@ class TraktClient {
             this.#accessToken = data.access_token;
             this.#refreshToken = data.refresh_token;
             this.#tokenExpiresAt = Date.now() + data.expires_in * 1000;
+
+            // Save the new refresh token to the .env file
+            config.REFRESH_TOKEN = this.#refreshToken;
+            saveConfig();
         } catch (error) {
             console.error('Error refreshing Trakt access token:', error);
             throw error;

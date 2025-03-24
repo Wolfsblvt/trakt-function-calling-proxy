@@ -1,6 +1,5 @@
 import express from 'express';
 import traktClient from '../trakt/client.js';
-import cachedTraktClient from '../cache/cached-trakt-client.js';
 
 const router = express.Router();
 

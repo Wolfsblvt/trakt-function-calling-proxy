@@ -20,20 +20,21 @@ const router = express.Router();
  */
 router.get('/', async (req, res) => {
     try {
-        // Extract and validate query parameters
-        const typeParam = req.query.type;
-        const idParam = req.query.id;
-        const startAtParam = req.query.startAt;
-        const endAtParam = req.query.endAt;
-        const limitParam = req.query.limit;
-        const pageParam = req.query.page;
-        const forceRefreshParam = req.query.forceRefresh;
+        const {
+            type: typeParam,
+            id: idParam,
+            startAt: startAtParam,
+            endAt: endAtParam,
+            limit: limitParam,
+            page: pageParam,
+            forceRefresh: forceRefreshParam,
+        } = req.query;
 
         // Convert query parameters to appropriate types
         /** @type {Props.GetHistoryProps & AllowForceRefresh} */
         const options = {
             type: typeParam && typeof typeParam === 'string' && TRAKT_WATCH_TYPES[typeParam.toUpperCase()] ? TRAKT_WATCH_TYPES[typeParam.toUpperCase()] : undefined,
-            itemId: idParam && !isNaN(Number(idParam)) ? Number(idParam) : undefined,
+            itemId: !isNaN(Number(idParam)) ? Number(idParam) : undefined,
             startAt: startAtParam ? new Date(String(startAtParam)) : undefined,
             endAt: endAtParam ? new Date(String(endAtParam)) : undefined,
             limit: limitParam ? Number(String(limitParam)) : undefined,
