@@ -1,5 +1,12 @@
 import cachedTraktClient from '../cache/cached-trakt-client.js';
+import { DEFAULT_PAGE_SIZES } from '../trakt/client.js';
 import dataEnricher from './enrichers/data-enricher.js';
+
+/** @import * as Trakt from '../trakt/trakt-types.js' */
+/** @import * as Props from '../trakt/props-types.js' */
+
+/** @typedef {import('../trakt/client.js').TRAKT_WATCH_TYPES} TRAKT_WATCH_TYPES */
+/** @typedef {import('../cache/cached-trakt-client.js').WithForceRefresh} AllowForceRefresh */
 
 /**
  * DataProcessor class for processing and enriching Trakt data
@@ -68,24 +75,17 @@ class DataProcessor {
 
     /**
      * Gets the user's watch history enriched with ratings
-     * @param {Object} [options] - Optional parameters
-     * @param {string} [options.type] - Filter by type: movies, shows, seasons, episodes
-     * @param {string} [options.id] - Trakt ID for a specific item
-     * @param {string} [options.startAt] - Start date in ISO format (YYYY-MM-DD)
-     * @param {string} [options.endAt] - End date in ISO format (YYYY-MM-DD)
-     * @param {number} [options.limit] - Number of items to return
-     * @param {number} [options.page=1] - Page number
-     * @param {boolean} [options.forceRefresh=false] - Whether to force a refresh
-     * @returns {Promise<Array>} - The enriched history
+     * @param {Props.GetHistoryProps & AllowForceRefresh} [options={}] - Optional parameters
+     * @returns {Promise<(Trakt.HistoryItem & TraktItemBase & EnrichedWithRating)[]>} - The enriched history
      */
-    async getEnrichedHistory({ type, id, startAt, endAt, limit, page = 1, forceRefresh = false } = {}) {
+    async getEnrichedHistory({ type = null, itemId = null, startAt, endAt, limit = DEFAULT_PAGE_SIZES.HISTORY, page = 1, forceRefresh = false } = {}) {
         // Get the history
         forceRefresh && this.#force();
-        const history = await cachedTraktClient.getHistory({ type, id, startAt, endAt, limit, page });
+        const history = await cachedTraktClient.getHistory({ type, itemId, startAt, endAt, limit, page });
 
-        // If the history is empty, return it as is
+        // If the history is empty, return an empty array
         if (!history || !history.length) {
-            return history;
+            return [];
         }
 
         // Get ratings
@@ -123,19 +123,11 @@ class DataProcessor {
 
     /**
      * Gets the user's ratings
-     * @param {Object} [options] - Optional parameters
-     * @param {string} [options.type] - Filter by type: movies, shows, seasons, episodes
-     * @param {string} [options.rating] - Filter by rating (1-10)
-     * @param {number} [options.limit] - Number of items to return
-     * @param {number} [options.page=1] - Page number
-     * @param {boolean} [options.forceRefresh=false] - Whether to force a refresh
+     * @param {Props.GetRatingsProps & AllowForceRefresh} [options={}] - Optional parameters
      * @returns {Promise<Array>} - The ratings
      */
     async getRatings({ type, rating, limit, page = 1, forceRefresh = false } = {}) {
-        if (forceRefresh) {
-            this.#force();
-            return cachedTraktClient.getRatings({ type, rating, limit, page });
-        }
+        forceRefresh && this.#force();
         return cachedTraktClient.getRatings({ type, rating, limit, page });
     }
 
@@ -175,4 +167,4 @@ class DataProcessor {
 }
 
 const dataProcessor = new DataProcessor();
-module.exports = dataProcessor;
+export default dataProcessor;

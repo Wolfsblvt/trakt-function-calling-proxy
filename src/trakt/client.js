@@ -2,8 +2,40 @@ import fetch from 'node-fetch';
 import { config } from '../config.js';
 import { parseJson } from '../utils.js';
 
+/** @import * as Trakt from './trakt-types.js' */
+/** @import * as Props from './props-types.js' */
+
 const TRAKT_API_URL = 'https://api.trakt.tv';
 const TRAKT_API_VERSION = '2';
+
+/**
+ * Enum for watched types
+ * @enum {'movies'|'shows'|'seasons'|'episodes'}
+ */
+export const TRAKT_WATCH_TYPES = Object.freeze({
+    MOVIES: 'movies',
+    SHOWS: 'shows',
+    SEASONS: 'seasons',
+    EPISODES: 'episodes',
+});
+/**
+ * Enum for all trakt types
+ * @enum {'movies'|'shows'|'seasons'|'episodes'|'person'}
+ */
+export const TRAKT_CONTENT_TYPES = Object.freeze({
+    ...TRAKT_WATCH_TYPES,
+    PERSON: 'person',
+});
+
+/**
+ * Constants for default page sizes
+ * @enum {number?}
+ */
+export const DEFAULT_PAGE_SIZES = Object.freeze({
+    DEFAULT: 1_000,
+    HISTORY: 1_000,
+    RATINGS: null,
+});
 
 class TraktClient {
     /** @type {string} */
@@ -88,7 +120,7 @@ class TraktClient {
                 throw new Error(`Failed to refresh token: ${response.status}`);
             }
 
-            /** @type {import('./trakt-types.js').OAuthTokenResponse} */
+            /** @type {Trakt.OAuthTokenResponse} */
             const data = await parseJson(response);
             this.#accessToken = data.access_token;
             this.#refreshToken = data.refresh_token;
@@ -100,19 +132,49 @@ class TraktClient {
     }
 
     /**
-     * Builds a URL with query parameters
-     * @param {string} baseUrl - The base URL
-     * @param {Object} [params={}] - Query parameters to add
-     * @returns {string} - The complete URL with query parameters
+     * Builds a URL with optional route segments and query parameters
+     * @param {string} baseUrl - The base URL with optional segment placeholders (e.g., ":type")
+     * @param {Object} [params={}] - Parameters that can be used as segments or query parameters
+     * @returns {string} - The complete URL with segments and query parameters
      */
     #buildUrl(baseUrl, params = {}) {
-        const url = new URL(baseUrl);
+        // Create URL object
+        let url = new URL(baseUrl);
+
+        // Process each parameter
         Object.entries(params).forEach(([key, value]) => {
             if (value !== undefined && value !== null) {
-                url.searchParams.append(key, String(value));
+                // If the key matches a segment placeholder in the URL, use it as a segment
+                if (url.pathname.includes(`:${key}`)) {
+                    url.pathname = url.pathname.replace(`:${key}`, value);
+                } else {
+                // Otherwise, add it as a query parameter
+                    url.searchParams.append(key, String(value));
+                }
             }
         });
+
+        // Remove any remaining segment placeholders and their slashes
+        const segmentPattern = /\/?:\w+/g;
+        url.pathname = url.pathname.replace(segmentPattern, '');
+
+        // Normalize the path to remove any double slashes
+        url.pathname = url.pathname.replace(/\/+/g, '/');
+
         return url.toString();
+    }
+
+    /**
+     * Builds pagination parameters for a Trakt API request
+     * @param {number?} [limit=null] - Number of items to return
+     * @param {number?} [page=1] - Page number. If `limit` is null or `page` is 1, `page` will be null.
+     * @returns {{ limit: number?; page: number? }} - Pagination parameters
+     */
+    #buildPagination(limit = null, page = 1) {
+        if (limit === null || page === 1) {
+            return { limit, page: null };
+        }
+        return { limit, page };
     }
 
     /**
@@ -122,7 +184,7 @@ class TraktClient {
      * @param {string} [options.sort='rank'] - How to sort: rank, added, released, title
      * @param {number} [options.limit] - Number of items to return
      * @param {number} [options.page=1] - Page number
-     * @returns {Promise<import('./trakt-types.js').WatchlistItem[]>}
+     * @returns {Promise<Trakt.WatchlistItem[]>}
      */
     async getWatchlist({ type, sort = 'rank', limit, page = 1 } = {}) {
         const url = this.#buildUrl(`${TRAKT_API_URL}/users/me/watchlist`, { type, sort, limit, page });
@@ -131,46 +193,31 @@ class TraktClient {
 
     /**
      * Get the user's watch history
-     * @param {Object} [options] - Optional parameters
-     * @param {string} [options.type] - Filter by type: movies, shows, seasons, episodes
-     * @param {string} [options.id] - Trakt ID for a specific item
-     * @param {string} [options.startAt] - Start date in ISO format (YYYY-MM-DD)
-     * @param {string} [options.endAt] - End date in ISO format (YYYY-MM-DD)
-     * @param {number} [options.limit] - Number of items to return
-     * @param {number} [options.page=1] - Page number
-     * @returns {Promise<import('./trakt-types.js').HistoryItem[]>}
+     * @param {Props.GetHistoryProps} [options={}] - Optional parameters
+     * @returns {Promise<Trakt.HistoryItem[]>}
      */
-    async getHistory({ type, id, startAt, endAt, limit, page = 1 } = {}) {
-        const params = { start_at: startAt, end_at: endAt, limit, page };
-
-        let url;
-        if (type && id) {
-            url = this.#buildUrl(`${TRAKT_API_URL}/users/me/history/${type}/${id}`, params);
-        } else if (type) {
-            url = this.#buildUrl(`${TRAKT_API_URL}/users/me/history/${type}`, params);
-        } else {
-            url = this.#buildUrl(`${TRAKT_API_URL}/users/me/history`, params);
-        }
-
+    async getHistory({ type = null, itemId = null, startAt, endAt, limit = DEFAULT_PAGE_SIZES.HISTORY, page = 1 } = {}) {
+        const url = this.#buildUrl(`${TRAKT_API_URL}/users/me/history/:type/:item_id`, {
+            type,
+            item_id: itemId,
+            start_at: startAt?.toISOString(),
+            end_at: endAt?.toISOString(),
+            ...this.#buildPagination(limit, page),
+        });
         return this.#makeRequest(url);
     }
 
     /**
      * Get the user's ratings
-     * @param {Object} [options] - Optional parameters
-     * @param {string} [options.type] - Filter by type: movies, shows, seasons, episodes
-     * @param {string} [options.rating] - Filter by rating (1-10)
-     * @param {number} [options.limit] - Number of items to return
-     * @param {number} [options.page=1] - Page number
-     * @returns {Promise<import('./trakt-types.js').RatingItem[]>}
+     * @param {Props.GetRatingsProps} [options={}] - Optional parameters
+     * @returns {Promise<Trakt.RatingItem[]>}
      */
-    async getRatings({ type, rating, limit, page = 1 } = {}) {
-        let url;
-        if (type) {
-            url = this.#buildUrl(`${TRAKT_API_URL}/users/me/ratings/${type}`, { rating, limit, page });
-        } else {
-            url = this.#buildUrl(`${TRAKT_API_URL}/users/me/ratings`, { rating, limit, page });
-        }
+    async getRatings({ type = null, rating = null, limit = DEFAULT_PAGE_SIZES.RATINGS, page = 1 } = {}) {
+        const url = this.#buildUrl(`${TRAKT_API_URL}/users/me/ratings/:type/:rating`, {
+            type: type,
+            rating: rating && (Array.isArray(rating) ? rating.join(',') : rating),
+            ...this.#buildPagination(limit, page),
+        });
         return this.#makeRequest(url);
     }
 
@@ -180,7 +227,7 @@ class TraktClient {
      * @param {string} [options.type='movies'] - Type: movies or shows
      * @param {number} [options.limit=10] - Number of items to return
      * @param {number} [options.page=1] - Page number
-     * @returns {Promise<import('./trakt-types.js').TrendingItem[]>}
+     * @returns {Promise<Trakt.TrendingItem[]>}
      */
     async getTrending({ type = 'movies', limit = 10, page = 1 } = {}) {
         const url = this.#buildUrl(`${TRAKT_API_URL}/trending/${type}`, { limit, page });
@@ -194,7 +241,7 @@ class TraktClient {
      * @param {string} [options.type] - Filter by type: movie, show, episode, person, list
      * @param {number} [options.limit=10] - Number of items to return
      * @param {number} [options.page=1] - Page number
-     * @returns {Promise<import('./trakt-types.js').SearchResult[]>}
+     * @returns {Promise<Trakt.SearchResult[]>}
      */
     async search({ query, type, limit = 10, page = 1 }) {
         const url = this.#buildUrl(`${TRAKT_API_URL}/search/${type || 'movie,show'}`, { query, limit, page });

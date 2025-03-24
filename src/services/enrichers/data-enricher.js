@@ -1,35 +1,5 @@
-/**
- * @typedef {import('../../trakt/trakt-types.js').HistoryItem} HistoryItem
- * @typedef {import('../../trakt/trakt-types.js').RatingItem} RatingItem
- * @typedef {import('../../trakt/trakt-types.js').WatchlistItem} WatchlistItem
- * @typedef {import('../../trakt/trakt-types.js').TrendingItem} TrendingItem
- * @typedef {import('../../trakt/trakt-types.js').SearchResult} SearchResult
- */
-
-/**
- * @typedef {Object} TraktItemBase
- * @property {string} type - The type of the item (movie, show, episode, etc.)
- * @property {Object} [movie] - Movie data if type is movie
- * @property {Object} [show] - Show data if type is show
- * @property {Object} [episode] - Episode data if type is episode
- * @property {Object} [season] - Season data if type is season
- * @property {Object} [person] - Person data if type is person
- */
-
-/**
- * @typedef {(HistoryItem|RatingItem|WatchlistItem|TrendingItem|SearchResult) & TraktItemBase} TraktItem
- */
-
-/**
- * @typedef {Object} EnrichedWithRating
- * @property {number|null} rating - The user's rating for the item
- */
-
-/**
- * @typedef {Object} EnrichedWithHistory
- * @property {string|null} watched_at - When the item was watched
- * @property {string|null} action - The action taken (e.g., 'watch', 'checkin')
- */
+/** @import * as Trakt from '../../trakt/trakt-types.js' */
+/** @import * as Props from '../../trakt/props-types.js' */
 
 /**
  * DataEnricher class for enriching Trakt data with additional information
@@ -58,7 +28,7 @@ class DataEnricher {
      * Enriches items with ratings
      * @template T
      * @param {Array<T & TraktItemBase>} items - The items to enrich
-     * @param {Array<RatingItem>} ratings - The ratings to use for enrichment
+     * @param {Array<Trakt.RatingItem>} ratings - The ratings to use for enrichment
      * @returns {Array<T & TraktItemBase & EnrichedWithRating>} The enriched items
      */
     enrichWithRatings(items, ratings) {
@@ -90,7 +60,7 @@ class DataEnricher {
      * Enriches items with watch history
      * @template T
      * @param {Array<T & TraktItemBase>} items - The items to enrich
-     * @param {Array<HistoryItem>} history - The history to use for enrichment
+     * @param {Array<Trakt.HistoryItem>} history - The history to use for enrichment
      * @returns {Array<T & TraktItemBase & EnrichedWithHistory>} The enriched items
      */
     enrichWithWatchHistory(items, history) {
@@ -131,8 +101,8 @@ class DataEnricher {
      * Enriches items with both ratings and watch history
      * @template T
      * @param {Array<T & TraktItemBase>} items - The items to enrich
-     * @param {Array<RatingItem>} ratings - The ratings to use for enrichment
-     * @param {Array<HistoryItem>} history - The history to use for enrichment
+     * @param {Array<Trakt.RatingItem>} ratings - The ratings to use for enrichment
+     * @param {Array<Trakt.HistoryItem>} history - The history to use for enrichment
      * @returns {Array<T & TraktItemBase & EnrichedWithRating & EnrichedWithHistory>} The enriched items
      */
     enrichWithRatingsAndHistory(items, ratings, history) {

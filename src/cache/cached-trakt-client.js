@@ -2,11 +2,8 @@ import traktClient from '../trakt/client.js';
 import cacheManager, { CACHE_TYPES, DEFAULT_TTL } from './cache-manager.js';
 
 /**
- * @typedef {import('../trakt/trakt-types.js').HistoryItem} HistoryItem
- * @typedef {import('../trakt/trakt-types.js').RatingItem} RatingItem
- * @typedef {import('../trakt/trakt-types.js').WatchlistItem} WatchlistItem
- * @typedef {import('../trakt/trakt-types.js').TrendingItem} TrendingItem
- * @typedef {import('../trakt/trakt-types.js').SearchResult} SearchResult
+ * @typedef {object} WithForceRefresh
+ * @property {boolean} [forceRefresh=false] - Whether to force a refresh from the API
  */
 
 /**
