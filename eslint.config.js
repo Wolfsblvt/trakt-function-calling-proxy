@@ -1,10 +1,17 @@
-import js from '@eslint/js';
+import eslint from '@eslint/js';
+import tseslint from 'typescript-eslint';
 import { defineConfig } from 'eslint/config';
 import * as importPlugin from 'eslint-plugin-import';
 import nodePlugin from 'eslint-plugin-n';
 import globals from 'globals';
 
 export default defineConfig([
+    eslint.configs.recommended,
+    tseslint.configs.strictTypeChecked,
+    tseslint.configs.stylisticTypeChecked,
+    importPlugin.flatConfigs?.recommended,
+    importPlugin.flatConfigs?.typescript,
+    nodePlugin.configs['flat/recommended-script'],
     {
         files: ['**/*.js'],
         ignores: ['node_modules/', 'dist/'],
@@ -12,10 +19,13 @@ export default defineConfig([
             ecmaVersion: 'latest',
             sourceType: 'module',
             globals: globals.node,
+            parserOptions: {
+                projectService: true,
+                tsconfigRootDir: import.meta.dirname,
+            },
         },
         plugins: {
-            js,
-            import: /** @type {any} */ (importPlugin),
+            js: eslint,
             n: nodePlugin,
         },
         extends: ['js/recommended'],
@@ -39,6 +49,12 @@ export default defineConfig([
             'no-irregular-whitespace': ['error', { skipStrings: true, skipTemplates: true }],
             'import/named': 'error',
             'import/no-unresolved': 'error',
+            'n/exports-style': ['error', 'exports'],
+            'n/handle-callback-err': 'warn',
+            'no-promise-executor-return': 'error',
+            'prefer-promise-reject-errors': 'warn',
+            'require-await': 'warn',
+            '@typescript-eslint/no-floating-promises': 'error',
         },
         settings: {
             'import/resolver': {
@@ -51,6 +67,7 @@ export default defineConfig([
     {
         files: ['eslint.config.js'],
         rules: {
+            'n/no-unpublished-import': 'off',
             'import/no-unresolved': 'off',
         },
     },
