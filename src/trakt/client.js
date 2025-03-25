@@ -78,7 +78,7 @@ class TraktClient {
             'Authorization': `Bearer ${this.#accessToken}`,
             'trakt-api-version': TRAKT_API_VERSION,
             'trakt-api-key': this.#clientId,
-            ...initOptions.headers,
+            ...(initOptions.headers ? Object.fromEntries(Object.entries(initOptions.headers)) : {}),
         };
 
         const response = await fetch(url, { ...initOptions, headers });
@@ -197,7 +197,7 @@ class TraktClient {
      */
     async getWatchlist({ type, sort = 'rank', limit, page = 1 } = {}) {
         const url = this.#buildUrl(`${TRAKT_API_URL}/users/me/watchlist`, { type, sort, limit, page });
-        return this.#makeRequest(url);
+        return await this.#makeRequest(url);
     }
 
     /**
@@ -213,7 +213,7 @@ class TraktClient {
             end_at: endAt?.toISOString(),
             ...this.#buildPagination(limit, page),
         });
-        return this.#makeRequest(url);
+        return await this.#makeRequest(url);
     }
 
     /**
@@ -227,7 +227,7 @@ class TraktClient {
             rating: rating && (Array.isArray(rating) ? rating.join(',') : rating),
             ...this.#buildPagination(limit, page),
         });
-        return this.#makeRequest(url);
+        return await this.#makeRequest(url);
     }
 
     /**
@@ -240,7 +240,7 @@ class TraktClient {
      */
     async getTrending({ type = 'movies', limit = 10, page = 1 } = {}) {
         const url = this.#buildUrl(`${TRAKT_API_URL}/trending/${type}`, { limit, page });
-        return this.#makeRequest(url);
+        return await this.#makeRequest(url);
     }
 
     /**
@@ -254,7 +254,7 @@ class TraktClient {
      */
     async search({ query, type, limit = 10, page = 1 }) {
         const url = this.#buildUrl(`${TRAKT_API_URL}/search/${type || 'movie,show'}`, { query, limit, page });
-        return this.#makeRequest(url);
+        return await this.#makeRequest(url);
     }
 }
 

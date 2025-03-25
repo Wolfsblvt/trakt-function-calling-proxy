@@ -11,13 +11,13 @@ class DataEnricher {
      * @returns {string} A unique key for the item
      */
     createItemKey(item) {
-        if (!item || !item.type) {
+        if (!item?.type) {
             return '';
         }
 
         // Get the appropriate ID based on the item type
         const itemData = item[item.type];
-        if (!itemData || !itemData.ids || !itemData.ids.trakt) {
+        if (!itemData?.ids?.trakt) {
             return '';
         }
 
@@ -32,8 +32,8 @@ class DataEnricher {
      * @returns {Array<T & TraktItemBase & EnrichedWithRating>} The enriched items
      */
     enrichWithRatings(items, ratings) {
-        if (!items || !items.length || !ratings || !ratings.length) {
-            // @ts-ignore - We're handling the return type explicitly
+        if (!items?.length || !ratings?.length) {
+        // @ts-expect-error - We're handling the return type explicitly
             return items || [];
         }
 
@@ -64,8 +64,8 @@ class DataEnricher {
      * @returns {Array<T & TraktItemBase & EnrichedWithHistory>} The enriched items
      */
     enrichWithWatchHistory(items, history) {
-        if (!items || !items.length || !history || !history.length) {
-            // @ts-ignore - We're handling the return type explicitly
+        if (!items?.length || !history?.length) {
+        // @ts-expect-error - We're handling the return type explicitly
             return items || [];
         }
 

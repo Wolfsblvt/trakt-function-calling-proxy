@@ -35,7 +35,7 @@ class DataProcessor {
         const watchlist = await cachedTraktClient.getWatchlist({ type, sort, limit, page });
 
         // If the watchlist is empty, return it as is
-        if (!watchlist || !watchlist.length) {
+        if (!watchlist?.length) {
             return watchlist;
         }
 
@@ -84,7 +84,7 @@ class DataProcessor {
         const history = await cachedTraktClient.getHistory({ type, itemId, startAt, endAt, limit, page });
 
         // If the history is empty, return an empty array
-        if (!history || !history.length) {
+        if (!history?.length) {
             return [];
         }
 
@@ -128,7 +128,7 @@ class DataProcessor {
      */
     async getRatings({ type, rating, limit, page = 1, forceRefresh = false } = {}) {
         forceRefresh && this.#force();
-        return cachedTraktClient.getRatings({ type, rating, limit, page });
+        return await cachedTraktClient.getRatings({ type, rating, limit, page });
     }
 
     /**

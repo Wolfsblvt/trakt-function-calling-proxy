@@ -1,11 +1,10 @@
-import { createWriteStream } from 'fs';
-import { promises as fsPromises } from 'fs';
+import { promises as fsPromises, createWriteStream } from 'fs';
 import { get } from 'https';
 import { join } from 'path';
 
 const rootDir = process.cwd();
 
-const downloadTraktDocs = async () => {
+async function downloadTraktDocs() {
     try {
         const docsDir = join(rootDir, '.docs');
         const filePath = join(docsDir, 'trakt.apib');
@@ -34,8 +33,8 @@ const downloadTraktDocs = async () => {
         console.log('Trakt API documentation downloaded successfully');
     } catch (err) {
         console.error('Error downloading Trakt API documentation:', err);
-        process.exit(1);
+        process.exitCode = 1;
     }
-};
+}
 
-downloadTraktDocs();
+await downloadTraktDocs();

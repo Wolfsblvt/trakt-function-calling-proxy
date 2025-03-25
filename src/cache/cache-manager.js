@@ -39,16 +39,19 @@ class CacheManager {
     constructor() {
         // Initialize in-memory cache using Map
         this.#memoryCache = new Map();
+    }
 
+    async init() {
         // Initialize disk-based cache using node-persist
-        storage.init({
+        await storage.init({
             dir: './.cache/queries',             // Directory for disk persistence
             stringify: JSON.stringify,
             parse: JSON.parse,
             encoding: 'utf8',
             logging: false,
             ttl: DEFAULT_TTL.DEFAULT * 1000,         // Default TTL: 1 hour (in ms)
-        }).then(() => console.log('Disk cache initialized'));
+        });
+        console.log('Disk cache initialized');
 
         // Set up memory cache cleanup interval (every 5 minutes)
         setInterval(() => this.#cleanupMemoryCache(), MEM_CACHE_CLEANUP_INTERVAL);
@@ -105,7 +108,7 @@ class CacheManager {
         const diskItem = await storage.getItem(key);
         if (diskItem !== undefined && diskItem !== null) {
             // Also store in memory for faster access next time
-            this.set(key, diskItem, { memoryOnly: true });
+            await this.set(key, diskItem, { memoryOnly: true });
             return diskItem;
         }
 
@@ -190,4 +193,5 @@ class CacheManager {
 }
 
 const cacheManager = new CacheManager();
+await cacheManager.init();
 export default cacheManager;

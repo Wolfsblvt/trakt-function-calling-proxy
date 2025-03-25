@@ -62,7 +62,7 @@ class CachedTraktClient {
                 this.#forceRefresh = false;
             }
 
-            return this.#cachedRequest(
+            return await this.#cachedRequest(
                 cacheType,
                 (/** @type {any} */ p) => this.#traktClient[methodName](p),
                 apiParams,
@@ -88,7 +88,7 @@ class CachedTraktClient {
 
         // Return cached data if available and not forcing refresh
         if (!forceRefresh) {
-            const cachedData = cacheManager.get(cacheKey);
+            const cachedData = await cacheManager.get(cacheKey);
             if (cachedData) {
                 return cachedData;
             }
@@ -98,12 +98,12 @@ class CachedTraktClient {
         try {
             const freshData = await fetchFunction(params);
             // Cache the fresh data
-            cacheManager.set(cacheKey, freshData, { ttl: effectiveTtl });
+            await cacheManager.set(cacheKey, freshData, { ttl: effectiveTtl });
             return freshData;
         } catch (error) {
             // If forcing refresh and it fails, try to return stale data
             if (forceRefresh) {
-                const staleData = cacheManager.get(cacheKey);
+                const staleData = await cacheManager.get(cacheKey);
                 if (staleData) {
                     console.warn(`Failed to refresh ${cacheType} data, using stale data:`, error.message);
                     return staleData;
@@ -145,5 +145,5 @@ const cachedTraktClient = new CachedTraktClient(traktClient);
  * @typedef {import('../trakt/client.js').default & import('./cached-trakt-client.js').default} CachedTraktClientInstance
  */
 /** @type {CachedTraktClientInstance} */
-// @ts-ignore - This proxy has all the original functions of TraktClient wrapped, so we can safely add them to the jsdoc
+// @ts-expect-error - This proxy has all the original functions of TraktClient wrapped, so we can safely add them to the jsdoc
 export default cachedTraktClient;
