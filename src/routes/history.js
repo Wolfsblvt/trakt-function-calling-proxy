@@ -17,6 +17,8 @@ const router = express.Router();
  * @param {number} [req.query.limit] - Optional limit for number of items
  * @param {number} [req.query.page=1] - Optional page number (default: 1)
  * @param {boolean} [req.query.forceRefresh=false] - Whether to force a refresh from the API
+ * @param {boolean} [req.query.autoPaginate=false] - Whether to automatically fetch all pages
+ * @param {number} [req.query.maxPages] - Maximum number of pages to fetch when auto-paginating
  */
 router.get('/', async (req, res) => {
     try {
@@ -28,10 +30,12 @@ router.get('/', async (req, res) => {
             limit: limitParam,
             page: pageParam,
             forceRefresh: forceRefreshParam,
+            autoPaginate: autoPaginateParam,
+            maxPages: maxPagesParam,
         } = req.query;
 
         // Convert query parameters to appropriate types
-        /** @type {Props.GetHistoryProps & AllowForceRefresh} */
+        /** @type {Props.GetHistoryProps & AllowForceRefresh & {autoPaginate?: boolean, maxPages?: number|null}} */
         const options = {
             type: typeParam && typeof typeParam === 'string' && TRAKT_WATCH_TYPES[typeParam.toUpperCase()] ? TRAKT_WATCH_TYPES[typeParam.toUpperCase()] : undefined,
             itemId: !isNaN(Number(idParam)) ? Number(idParam) : undefined,
@@ -40,16 +44,19 @@ router.get('/', async (req, res) => {
             limit: limitParam ? Number(String(limitParam)) : undefined,
             page: pageParam ? Number(String(pageParam)) : undefined,
             forceRefresh: forceRefreshParam === 'true',
+            autoPaginate: autoPaginateParam === 'true',
+            maxPages: maxPagesParam ? Number(String(maxPagesParam)) : null,
         };
 
         // Use the DataProcessor to get enriched watch history with ratings
-        const historyItems = await dataProcessor.getEnrichedHistory(options);
+        const historyResponse = await dataProcessor.getEnrichedHistory(options);
 
         res.json({
-            items: historyItems,
-            count: historyItems.length,
+            items: historyResponse.items,
+            count: historyResponse.items.length,
             page: options.page,
             limit: options.limit,
+            pagination: historyResponse.pagination,
         });
     } catch (error) {
         console.error('Error fetching history:', error);

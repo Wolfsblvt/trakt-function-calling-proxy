@@ -11,3 +11,6 @@ node_modules/
 
 # API documentation
 .docs
+
+# Cache
+.cache

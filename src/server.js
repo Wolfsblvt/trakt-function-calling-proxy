@@ -4,6 +4,7 @@ import auth from './middleware/auth.js';
 import watchlistRouter from './routes/watchlist.js';
 import historyRouter from './routes/history.js';
 import ratingsRouter from './routes/ratings.js';
+import trendingRouter from './routes/trending.js';
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(auth);
 app.use('/watchlist', watchlistRouter);
 app.use('/history', historyRouter);
 app.use('/ratings', ratingsRouter);
+app.use('/trending', trendingRouter);
 
 // Root endpoint
 app.get('/', (req, res) => {

@@ -21,10 +21,10 @@ export const CACHE_TYPES = Object.freeze({
 export const DEFAULT_TTL = Object.freeze({
     DEFAULT: 60 * 60, // 1 hour
     [CACHE_TYPES.HISTORY]: 60 * 5,    // 5 minutes
-    [CACHE_TYPES.RATINGS]: 60 * 10,     // 10 minutes
-    [CACHE_TYPES.WATCHLIST]: 60 * 15,   // 15 minutes
-    [CACHE_TYPES.TRENDING]: 60 * 30,    // 30 minutes
-    [CACHE_TYPES.SEARCH]: 60 * 5,       // 5 minutes
+    [CACHE_TYPES.RATINGS]: 60 * 5,     // 5 minutes
+    [CACHE_TYPES.WATCHLIST]: 60 * 5,   // 5 minutes
+    [CACHE_TYPES.TRENDING]: 60 * 60,    // 60 minutes
+    [CACHE_TYPES.SEARCH]: 60 * 60,       // 60 minutes
 });
 
 const MEM_CACHE_CLEANUP_INTERVAL = 5 * 60 * 1000;

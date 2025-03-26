@@ -1,4 +1,13 @@
 /**
+ * Not really a trakt type, but used for responses to signify pagination info
+ * @typedef {Object} Pagination
+ * @property {number} itemCount - Total number of items
+ * @property {number} pageCount - Total number of pages
+ * @property {number} limit - Number of items per page
+ * @property {number} page - Current page
+ */
+
+/**
  * @typedef {Object} ErrorResponse
  * @property {string} error
  * @property {string} error_description
@@ -80,7 +89,7 @@
  * @typedef {Object} RatingItem
  * @property {number} rating - Rating (1-10)
  * @property {string} rated_at - ISO 8601 UTC datetime when the item was rated
- * @property {string} type - Type of item: movie, show, season, episode
+ * @property {'movies'|'shows'|'seasons'|'episodes'} type - Type of item: movie, show, season, episode
  * @property {TraktMovie} [movie] - Movie data if type is movie
  * @property {TraktShow} [show] - Show data if type is show
  * @property {TraktSeason} [season] - Season data if type is season

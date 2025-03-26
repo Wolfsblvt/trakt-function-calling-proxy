@@ -97,6 +97,81 @@ class TraktClient {
         return /** @type {T} */ (await response.json());
     }
 
+    /**
+     * Makes a paginated request to the Trakt API, automatically fetching all pages
+     * @template T
+     * @param {string} endpoint - API endpoint
+     * @param {import('node-fetch').RequestInit} [initOptions={}] - Request options
+     * @param {Object} [options={}] - Additional options
+     * @param {boolean} [options.autoPaginate=false] - Whether to automatically fetch all pages
+     * @param {number|null} [options.maxPages=null] - Maximum number of pages to fetch (null for unlimited)
+     * @returns {Promise<{data: T[], pagination: Trakt.Pagination}>}
+     */
+    async #makePaginatedRequest(endpoint, initOptions = {}, { autoPaginate = false, maxPages = null } = {}) {
+        // Make the initial request
+        const response = await fetch(endpoint, {
+            ...initOptions,
+            headers: {
+                'Authorization': `Bearer ${this.#accessToken}`,
+                'trakt-api-version': TRAKT_API_VERSION,
+                'trakt-api-key': this.#clientId,
+                ...(initOptions.headers ? Object.fromEntries(Object.entries(initOptions.headers)) : {}),
+            },
+        });
+
+        if (response.status === 401) {
+            // Unauthorized: refresh token and retry
+            await this.#refreshAccessToken();
+            return await this.#makePaginatedRequest(endpoint, initOptions, { autoPaginate, maxPages });
+        }
+
+        if (!response.ok) {
+            /** @type {Trakt.ErrorResponse} */
+            const errorData = await parseJson(response);
+            throw new Error(`Trakt API responded [${response.status} - ${errorData.error}] ${errorData.error_description}`);
+        }
+
+        // Parse pagination headers
+        const itemCount = Number(response.headers.get('x-pagination-item-count')) || 0;
+        const pageCount = Number(response.headers.get('x-pagination-page-count')) || 1;
+        const limit = Number(response.headers.get('x-pagination-limit')) || 0;
+        let page = Number(response.headers.get('x-pagination-page')) || 1;
+
+        // Parse the response body
+        /** @type {T[]} */
+        const data = await parseJson(response);
+
+        const untilPage = Math.min(pageCount, maxPages ?? Number.MAX_SAFE_INTEGER);
+
+        // If auto-pagination is disabled or we're on the last page, return the data
+        if (!autoPaginate || page >= untilPage) {
+            return { data, pagination: { itemCount, pageCount, limit, page } };
+        }
+
+        // Otherwise, fetch the remaining pages
+        const pagePromises = [];
+
+        for (page = page + 1; page <= untilPage; page++) {
+            // Create a new URL with the updated page parameter
+            const url = new URL(endpoint);
+            url.searchParams.set('page', String(page));
+
+            // Add the request to the promises array
+            pagePromises.push(this.#makeRequest(url.toString(), initOptions));
+        }
+
+        // Wait for all pages to be fetched
+        const additionalData = await Promise.all(pagePromises);
+
+        // Combine all the data
+        const allData = [...data, ...additionalData.flat()];
+
+        return {
+            data: allData,
+            pagination: { itemCount, pageCount, limit, page },
+        };
+    }
+
     async #ensureTokenValid() {
         if (this.#accessToken && this.#tokenExpiresAt && Date.now() < this.#tokenExpiresAt) {
             return;
@@ -187,25 +262,24 @@ class TraktClient {
     }
 
     /**
-     * Get the user's watchlist
+     * Get the user's watchlist with auto-pagination support
      * @param {Object} [options] - Optional parameters
      * @param {string} [options.type] - Filter by type: movies, shows, seasons, episodes
      * @param {string} [options.sort='rank'] - How to sort: rank, added, released, title
-     * @param {number} [options.limit] - Number of items to return
-     * @param {number} [options.page=1] - Page number
-     * @returns {Promise<Trakt.WatchlistItem[]>}
+     * @param {Props.PaginationProps} [options.pagination] - Pagination options
+     * @returns {Promise<{data: Trakt.WatchlistItem[], pagination: Trakt.Pagination}>} - The watchlist with pagination info
      */
-    async getWatchlist({ type, sort = 'rank', limit, page = 1 } = {}) {
-        const url = this.#buildUrl(`${TRAKT_API_URL}/users/me/watchlist`, { type, sort, limit, page });
-        return await this.#makeRequest(url);
+    async getWatchlist({ type, sort = 'rank', pagination = {} } = {}) {
+        const url = this.#buildUrl(`${TRAKT_API_URL}/users/me/watchlist`, { type, sort, ...this.#buildPagination(pagination.limit, pagination.page) });
+        return await this.#makePaginatedRequest(url, {}, { autoPaginate: pagination.autoPaginate, maxPages: pagination.maxPages });
     }
 
     /**
-     * Get the user's watch history
-     * @param {Props.GetHistoryProps} [options={}] - Optional parameters
-     * @returns {Promise<Trakt.HistoryItem[]>}
+     * Get the user's watch history with auto-pagination support
+     * @param {Props.GetHistoryProps & Props.PaginationProps} [options={}] - Optional parameters
+     * @returns {Promise<{data: Trakt.HistoryItem[], pagination: Trakt.Pagination}>} - The history with pagination info
      */
-    async getHistory({ type = null, itemId = null, startAt, endAt, limit = DEFAULT_PAGE_SIZES.HISTORY, page = 1 } = {}) {
+    async getHistory({ type = null, itemId = null, startAt = null, endAt = null, limit = DEFAULT_PAGE_SIZES.HISTORY, page = 1, autoPaginate = true, maxPages = null } = {}) {
         const url = this.#buildUrl(`${TRAKT_API_URL}/users/me/history/:type/:item_id`, {
             type,
             item_id: itemId,
@@ -213,48 +287,46 @@ class TraktClient {
             end_at: endAt?.toISOString(),
             ...this.#buildPagination(limit, page),
         });
-        return await this.#makeRequest(url);
+        return await this.#makePaginatedRequest(url, {}, { autoPaginate, maxPages });
     }
 
     /**
-     * Get the user's ratings
-     * @param {Props.GetRatingsProps} [options={}] - Optional parameters
-     * @returns {Promise<Trakt.RatingItem[]>}
+     * Get the user's ratings with auto-pagination support
+     * @param {Props.GetRatingsProps & Props.PaginationProps} [options={}] - Optional parameters
+     * @returns {Promise<{data: Trakt.RatingItem[], pagination: Trakt.Pagination}>} - The ratings with pagination info
      */
-    async getRatings({ type = null, rating = null, limit = DEFAULT_PAGE_SIZES.RATINGS, page = 1 } = {}) {
+    async getRatings({ type = null, rating = null, limit = DEFAULT_PAGE_SIZES.RATINGS, page = 1, autoPaginate = true, maxPages = null } = {}) {
         const url = this.#buildUrl(`${TRAKT_API_URL}/users/me/ratings/:type/:rating`, {
             type: type,
             rating: rating && (Array.isArray(rating) ? rating.join(',') : rating),
             ...this.#buildPagination(limit, page),
         });
-        return await this.#makeRequest(url);
+        return await this.#makePaginatedRequest(url, {}, { autoPaginate, maxPages });
     }
 
     /**
-     * Get trending movies or shows
+     * Get trending items with auto-pagination support
      * @param {Object} [options] - Optional parameters
      * @param {string} [options.type='movies'] - Type: movies or shows
-     * @param {number} [options.limit=10] - Number of items to return
-     * @param {number} [options.page=1] - Page number
-     * @returns {Promise<Trakt.TrendingItem[]>}
+     * @param {Props.PaginationProps} [options.pagination] - Pagination options
+     * @returns {Promise<{data: Trakt.TrendingItem[], pagination: Trakt.Pagination}>} - The trending items with pagination info
      */
-    async getTrending({ type = 'movies', limit = 10, page = 1 } = {}) {
-        const url = this.#buildUrl(`${TRAKT_API_URL}/trending/${type}`, { limit, page });
-        return await this.#makeRequest(url);
+    async getTrending({ type = 'movies', pagination = {} } = {}) {
+        const url = this.#buildUrl(`${TRAKT_API_URL}/trending/${type}`, { ...this.#buildPagination(pagination.limit, pagination.page) });
+        return await this.#makePaginatedRequest(url, {}, { autoPaginate: pagination.autoPaginate, maxPages: pagination.maxPages });
     }
 
     /**
-     * Search for movies, shows, episodes, people, or lists
+     * Get search results with auto-pagination support
      * @param {Object} options - Search parameters
      * @param {string} options.query - Search query
      * @param {string} [options.type] - Filter by type: movie, show, episode, person, list
-     * @param {number} [options.limit=10] - Number of items to return
-     * @param {number} [options.page=1] - Page number
-     * @returns {Promise<Trakt.SearchResult[]>}
+     * @param {Props.PaginationProps} [options.pagination] - Pagination options
+     * @returns {Promise<{data: Trakt.SearchResult[], pagination: Trakt.Pagination}>} - The search results with pagination info
      */
-    async search({ query, type, limit = 10, page = 1 }) {
-        const url = this.#buildUrl(`${TRAKT_API_URL}/search/${type || 'movie,show'}`, { query, limit, page });
-        return await this.#makeRequest(url);
+    async search({ query, type, pagination = {} }) {
+        const url = this.#buildUrl(`${TRAKT_API_URL}/search/${type || 'movie,show'}`, { query, ...this.#buildPagination(pagination.limit, pagination.page) });
+        return await this.#makePaginatedRequest(url, {}, { autoPaginate: pagination.autoPaginate, maxPages: pagination.maxPages });
     }
 }
 
