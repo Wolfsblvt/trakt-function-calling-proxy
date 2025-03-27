@@ -20,7 +20,7 @@ app.use('/ratings', ratingsRouter);
 app.use('/trending', trendingRouter);
 
 // Root endpoint
-app.get('/', (req, res) => {
+app.get('/', (_, res) => {
     res.json({ message: 'Welcome to TaktBridge API Proxy' });
 });
 

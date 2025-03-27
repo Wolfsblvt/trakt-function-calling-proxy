@@ -58,18 +58,6 @@ class CacheManager {
     }
 
     /**
-     * Cleans up expired items from memory cache
-     */
-    #cleanupMemoryCache() {
-        const now = Date.now();
-        for (const [key, { expiresAt }] of this.#memoryCache.entries()) {
-            if (expiresAt && now >= expiresAt) {
-                this.#memoryCache.delete(key);
-            }
-        }
-    }
-
-    /**
      * Creates a cache key based on endpoint and parameters
      * @param {string} cacheType - The type of cache (e.g., 'history', 'ratings')
      * @param {object} [params={}] - Query parameters to include in the key
@@ -189,6 +177,18 @@ class CacheManager {
         this.#memoryCache.clear();
         await storage.clear();
         return true;
+    }
+
+    /**
+     * Cleans up expired items from memory cache
+     */
+    #cleanupMemoryCache() {
+        const now = Date.now();
+        for (const [key, { expiresAt }] of this.#memoryCache.entries()) {
+            if (expiresAt && now >= expiresAt) {
+                this.#memoryCache.delete(key);
+            }
+        }
     }
 }
 

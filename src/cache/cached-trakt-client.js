@@ -44,6 +44,30 @@ class CachedTraktClient {
     }
 
     /**
+     * Sets the force refresh flag for the next API call
+     */
+    forceRefreshNextCall() {
+        this.#forceRefresh = true;
+    }
+
+    /**
+     * Flush a specific type of cache
+     * @param {CACHE_TYPES} cacheType - Type of cache to flush
+     * @returns {Promise<number>} - Number of items deleted
+     */
+    async flushCache(cacheType) {
+        return await cacheManager.flushType(cacheType);
+    }
+
+    /**
+     * Flush all caches
+     * @returns {Promise<boolean>} - Whether the operation was successful
+     */
+    async flushAllCaches() {
+        return await cacheManager.flushAll();
+    }
+
+    /**
      * Creates a cached version of a Trakt client method
      * @param {string} methodName - The name of the method to cache
      * @returns {function} A cached version of the method
@@ -111,30 +135,6 @@ class CachedTraktClient {
             }
             throw error;
         }
-    }
-
-    /**
-     * Sets the force refresh flag for the next API call
-     */
-    forceRefreshNextCall() {
-        this.#forceRefresh = true;
-    }
-
-    /**
-     * Flush a specific type of cache
-     * @param {CACHE_TYPES} cacheType - Type of cache to flush
-     * @returns {Promise<number>} - Number of items deleted
-     */
-    async flushCache(cacheType) {
-        return await cacheManager.flushType(cacheType);
-    }
-
-    /**
-     * Flush all caches
-     * @returns {Promise<boolean>} - Whether the operation was successful
-     */
-    async flushAllCaches() {
-        return await cacheManager.flushAll();
     }
 }
 

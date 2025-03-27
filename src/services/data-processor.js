@@ -13,13 +13,6 @@ import dataEnricher from './enrichers/data-enricher.js';
  */
 class DataProcessor {
     /**
-     * Private function that sets the force refresh flag for the next API call
-     */
-    #force() {
-        cachedTraktClient.forceRefreshNextCall();
-    }
-
-    /**
      * Gets the user's watchlist enriched with ratings and watch history
      * @param {object} [options] - Optional parameters
      * @param {string} [options.type] - Filter by type: movies, shows, seasons, episodes
@@ -310,6 +303,13 @@ class DataProcessor {
             movies: { items: enrichedMovies, pagination: moviesPagination },
             shows: { items: enrichedShows, pagination: showsPagination },
         };
+    }
+
+    /**
+     * Private function that sets the force refresh flag for the next API call
+     */
+    #force() {
+        cachedTraktClient.forceRefreshNextCall();
     }
 }
 
