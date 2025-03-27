@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import fs from 'fs';
+import fs from 'node:fs';
 
 dotenv.config();
 
@@ -18,7 +18,7 @@ export const config = {
     APP_CLIENT_ID: process.env.APP_CLIENT_ID || '',
     APP_CLIENT_SECRET: process.env.APP_CLIENT_SECRET || '',
     REFRESH_TOKEN: process.env.REFRESH_TOKEN || '',
-    PORT: Number(process.env.PORT) || 3000,
+    PORT: Number(process.env.PORT) || 3_000,
 };
 
 /**

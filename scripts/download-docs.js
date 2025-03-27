@@ -1,6 +1,6 @@
-import { promises as fsPromises, createWriteStream } from 'fs';
-import { get } from 'https';
-import { join } from 'path';
+import { promises as fsPromises, createWriteStream } from 'node:fs';
+import { get } from 'node:https';
+import { join } from 'node:path';
 
 const rootDir = process.cwd();
 

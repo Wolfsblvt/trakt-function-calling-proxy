@@ -27,7 +27,7 @@ export const DEFAULT_TTL = Object.freeze({
     [CACHE_TYPES.SEARCH]: 60 * 60,       // 60 minutes
 });
 
-const MEM_CACHE_CLEANUP_INTERVAL = 5 * 60 * 1000;
+const MEM_CACHE_CLEANUP_INTERVAL = 5 * 60 * 1_000;
 
 /**
  * CacheManager class for handling in-memory and persistent caching
@@ -49,7 +49,7 @@ class CacheManager {
             parse: JSON.parse,
             encoding: 'utf8',
             logging: false,
-            ttl: DEFAULT_TTL.DEFAULT * 1000,         // Default TTL: 1 hour (in ms)
+            ttl: DEFAULT_TTL.DEFAULT * 1_000,         // Default TTL: 1 hour (in ms)
         });
         console.log('Disk cache initialized');
 
@@ -114,12 +114,12 @@ class CacheManager {
      */
     async set(key, value, { ttl = null, memoryOnly = false } = {}) {
         // Calculate expiration time for memory cache
-        const expiresAt = ttl ? Date.now() + (ttl * 1000) : undefined;
+        const expiresAt = ttl ? Date.now() + (ttl * 1_000) : undefined;
         this.#memoryCache.set(key, { value, expiresAt });
 
         // Also set in disk cache unless memory-only is specified
         if (!memoryOnly) {
-            await storage.setItem(key, value, { ttl: ttl ? ttl * 1000 : undefined });
+            await storage.setItem(key, value, { ttl: ttl ? ttl * 1_000 : undefined });
         }
         return true;
     }

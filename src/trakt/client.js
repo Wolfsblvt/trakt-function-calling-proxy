@@ -272,7 +272,7 @@ class TraktClient {
             const data = await parseJson(response);
             this.#accessToken = data.access_token;
             this.#refreshToken = data.refresh_token;
-            this.#tokenExpiresAt = Date.now() + data.expires_in * 1000;
+            this.#tokenExpiresAt = Date.now() + data.expires_in * 1_000;
 
             // Save the new refresh token to the .env file
             config.REFRESH_TOKEN = this.#refreshToken;
@@ -294,7 +294,7 @@ class TraktClient {
         let url = new URL(baseUrl);
 
         // Process each parameter
-        Object.entries(params).forEach(([key, value]) => {
+        for (const [key, value] of Object.entries(params)) {
             if (value !== undefined && value !== null) {
                 // If the key matches a segment placeholder in the URL, use it as a segment
                 if (url.pathname.includes(`:${key}`)) {
@@ -304,14 +304,14 @@ class TraktClient {
                     url.searchParams.append(key, String(value));
                 }
             }
-        });
+        }
 
         // Remove any remaining segment placeholders and their slashes
         const segmentPattern = /\/?:\w+/g;
-        url.pathname = url.pathname.replace(segmentPattern, '');
+        url.pathname = url.pathname.replaceAll(segmentPattern, '');
 
         // Normalize the path to remove any double slashes
-        url.pathname = url.pathname.replace(/\/+/g, '/');
+        url.pathname = url.pathname.replaceAll(/\/+/g, '/');
 
         return url.toString();
     }

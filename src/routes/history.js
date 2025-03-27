@@ -38,7 +38,7 @@ router.get('/', async (req, res) => {
         /** @type {Props.GetHistoryProps & AllowForceRefresh & {autoPaginate?: boolean, maxPages?: number|null}} */
         const options = {
             type: typeParam && typeof typeParam === 'string' && TRAKT_WATCH_TYPES[typeParam.toUpperCase()] ? TRAKT_WATCH_TYPES[typeParam.toUpperCase()] : undefined,
-            itemId: !isNaN(Number(idParam)) ? Number(idParam) : undefined,
+            itemId: !Number.isNaN(Number(idParam)) ? Number(idParam) : undefined,
             startAt: startAtParam ? new Date(String(startAtParam)) : undefined,
             endAt: endAtParam ? new Date(String(endAtParam)) : undefined,
             limit: limitParam ? Number(String(limitParam)) : undefined,

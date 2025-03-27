@@ -1,11 +1,13 @@
+import { defineConfig } from 'eslint/config';
+import globals from 'globals';
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
-import { defineConfig } from 'eslint/config';
 import * as importPlugin from 'eslint-plugin-import';
 import nodePlugin from 'eslint-plugin-n';
-import globals from 'globals';
 import jsdocPlugin from 'eslint-plugin-jsdoc';
-import pluginPromise from 'eslint-plugin-promise';
+import promisePlugin from 'eslint-plugin-promise';
+import unicornPlugin from 'eslint-plugin-unicorn';
+
 
 export default defineConfig([
     eslint.configs.recommended,
@@ -13,9 +15,10 @@ export default defineConfig([
     tseslint.configs.stylisticTypeChecked,
     importPlugin.flatConfigs?.recommended,
     importPlugin.flatConfigs?.typescript,
+    unicornPlugin.configs.recommended,
     jsdocPlugin.configs['flat/contents-typescript-flavor-error'],
     nodePlugin.configs['flat/recommended-script'],
-    pluginPromise.configs['flat/recommended'],
+    promisePlugin.configs['flat/recommended'],
     {
         files: ['**/*.js'],
         ignores: ['node_modules/', 'dist/'],
@@ -79,6 +82,18 @@ export default defineConfig([
             'jsdoc/match-description': 'off',
             'jsdoc/informative-docs': 'off',
             'promise/prefer-await-to-then': 'warn',
+            'unicorn/numeric-separators-style': ['warn', {
+                number: {
+                    minimumDigits: 0,
+                    groupLength: 3,
+                },
+            }],
+            'unicorn/prevent-abbreviations': 'off',
+            'unicorn/import-style': 'off',
+            'unicorn/catch-error-name': 'off',
+            'unicorn/no-null': 'off',
+            'unicorn/no-negated-condition': 'off',
+            'unicorn/no-empty-file': 'off',
         },
         settings: {
             'import/resolver': {
