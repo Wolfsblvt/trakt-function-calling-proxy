@@ -1,4 +1,5 @@
 import express from 'express';
+
 import dataProcessor from '../services/data-processor.js';
 
 /** @import * as Props from '../trakt/props-types.js' */

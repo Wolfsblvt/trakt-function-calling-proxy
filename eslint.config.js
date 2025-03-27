@@ -1,24 +1,25 @@
-import { defineConfig } from 'eslint/config';
-import globals from 'globals';
 import eslint from '@eslint/js';
-import tseslint from 'typescript-eslint';
 import * as importPlugin from 'eslint-plugin-import';
-import nodePlugin from 'eslint-plugin-n';
 import jsdocPlugin from 'eslint-plugin-jsdoc';
+import nodePlugin from 'eslint-plugin-n';
+import perfectionist from 'eslint-plugin-perfectionist';
 import promisePlugin from 'eslint-plugin-promise';
 import unicornPlugin from 'eslint-plugin-unicorn';
-
+import { defineConfig } from 'eslint/config';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
 
 export default defineConfig([
     eslint.configs.recommended,
-    tseslint.configs.strictTypeChecked,
-    tseslint.configs.stylisticTypeChecked,
     importPlugin.flatConfigs?.recommended,
     importPlugin.flatConfigs?.typescript,
-    unicornPlugin.configs.recommended,
     jsdocPlugin.configs['flat/contents-typescript-flavor-error'],
     nodePlugin.configs['flat/recommended-script'],
+    perfectionist.configs['recommended-natural'],
     promisePlugin.configs['flat/recommended'],
+    unicornPlugin.configs.recommended,
+    tseslint.configs.strictTypeChecked,
+    tseslint.configs.stylisticTypeChecked,
     {
         files: ['**/*.js'],
         ignores: ['node_modules/', 'dist/'],
@@ -94,6 +95,23 @@ export default defineConfig([
             'unicorn/no-null': 'off',
             'unicorn/no-negated-condition': 'off',
             'unicorn/no-empty-file': 'off',
+            'perfectionist/sort-imports': ['warn', {
+                type: 'natural',
+                order: 'asc',
+                newlinesBetween: 'always',
+                groups: [
+                    'builtin',  // node:fs, node:path
+                    'external', // npm packages
+                    'internal', // alias or project-specific
+                    ['parent', 'sibling', 'index'], // relative imports
+                    'side-effect', // import './side-effect'
+                ],
+            }],
+            'perfectionist/sort-objects': 'off',
+            'perfectionist/sort-jsx-props': 'off',
+            'perfectionist/sort-enums': 'off',
+            'perfectionist/sort-union-types': 'off',
+            'perfectionist/sort-classes': 'off',
         },
         settings: {
             'import/resolver': {

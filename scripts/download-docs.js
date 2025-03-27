@@ -1,4 +1,4 @@
-import { promises as fsPromises, createWriteStream } from 'node:fs';
+import { createWriteStream, promises as fsPromises } from 'node:fs';
 import { get } from 'node:https';
 import { join } from 'node:path';
 

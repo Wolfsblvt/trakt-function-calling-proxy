@@ -1,10 +1,11 @@
 import express from 'express';
+
 import { config } from './config.js';
 import auth from './middleware/auth.js';
-import watchlistRouter from './routes/watchlist.js';
 import historyRouter from './routes/history.js';
 import ratingsRouter from './routes/ratings.js';
 import trendingRouter from './routes/trending.js';
+import watchlistRouter from './routes/watchlist.js';
 
 const app = express();
 

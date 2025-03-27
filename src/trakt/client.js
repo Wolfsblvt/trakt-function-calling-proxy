@@ -1,4 +1,5 @@
 import fetch from 'node-fetch';
+
 import { config, saveConfig } from '../config.js';
 import { parseJson } from '../utils.js';
 

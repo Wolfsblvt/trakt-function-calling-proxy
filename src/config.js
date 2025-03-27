@@ -1,5 +1,6 @@
-import dotenv from 'dotenv';
 import fs from 'node:fs';
+
+import dotenv from 'dotenv';
 
 dotenv.config();
 

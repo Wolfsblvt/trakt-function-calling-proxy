@@ -1,4 +1,5 @@
 import express from 'express';
+
 import dataProcessor from '../services/data-processor.js';
 import { TRAKT_WATCH_TYPES } from '../trakt/client.js';
 
