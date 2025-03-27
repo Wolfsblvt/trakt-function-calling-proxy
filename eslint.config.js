@@ -5,6 +5,7 @@ import * as importPlugin from 'eslint-plugin-import';
 import nodePlugin from 'eslint-plugin-n';
 import globals from 'globals';
 import jsdocPlugin from 'eslint-plugin-jsdoc';
+import pluginPromise from 'eslint-plugin-promise';
 
 export default defineConfig([
     eslint.configs.recommended,
@@ -14,6 +15,7 @@ export default defineConfig([
     importPlugin.flatConfigs?.typescript,
     jsdocPlugin.configs['flat/contents-typescript-flavor-error'],
     nodePlugin.configs['flat/recommended-script'],
+    pluginPromise.configs['flat/recommended'],
     {
         files: ['**/*.js'],
         ignores: ['node_modules/', 'dist/'],
@@ -76,6 +78,7 @@ export default defineConfig([
             'jsdoc/check-types': 'warn',
             'jsdoc/match-description': 'off',
             'jsdoc/informative-docs': 'off',
+            'promise/prefer-await-to-then': 'warn',
         },
         settings: {
             'import/resolver': {

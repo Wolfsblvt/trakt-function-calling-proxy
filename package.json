@@ -25,6 +25,7 @@
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-jsdoc": "^50.6.9",
     "eslint-plugin-n": "^17.16.2",
+    "eslint-plugin-promise": "^7.2.1",
     "globals": "^16.0.0",
     "nodemon": "^2.0.20",
     "typescript": "^5.8.2",
