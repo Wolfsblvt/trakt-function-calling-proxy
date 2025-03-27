@@ -28,7 +28,7 @@ router.get('/', async (req, res) => {
         } = req.query;
 
         // Convert query parameters to appropriate types
-        /** @type {Object & AllowForceRefresh & {autoPaginate?: boolean, maxPages?: number|null}} */
+        /** @type {object & AllowForceRefresh & {autoPaginate?: boolean, maxPages?: number | null}} */
         const options = {
             type: typeParam && typeof typeParam === 'string' ? String(typeParam) : undefined,
             limit: limitParam ? Number(String(limitParam)) : undefined,
@@ -69,7 +69,7 @@ router.get('/full', async (req, res) => {
         } = req.query;
 
         // Convert query parameters to appropriate types
-        /** @type {Object & AllowForceRefresh & {autoPaginate?: boolean, maxPages?: number|null}} */
+        /** @type {object & AllowForceRefresh & {autoPaginate?: boolean, maxPages?: number | null}} */
         const options = {
             forceRefresh: forceRefreshParam === 'true',
             autoPaginate: autoPaginateParam !== 'false', // Default to true unless explicitly set to false

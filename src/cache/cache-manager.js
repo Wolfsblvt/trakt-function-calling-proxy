@@ -72,7 +72,7 @@ class CacheManager {
     /**
      * Creates a cache key based on endpoint and parameters
      * @param {string} cacheType - The type of cache (e.g., 'history', 'ratings')
-     * @param {Object} [params={}] - Query parameters to include in the key
+     * @param {object} [params={}] - Query parameters to include in the key
      * @returns {string} - The cache key
      */
     createKey(cacheType, params = {}) {
@@ -119,7 +119,7 @@ class CacheManager {
      * Sets an item in cache
      * @param {string} key - The cache key
      * @param {any} value - The value to cache
-     * @param {Object} [options={}] - Cache options
+     * @param {object} [options={}] - Cache options
      * @param {number|null} [options.ttl=null] - Time to live in seconds
      * @param {boolean} [options.memoryOnly=false] - Whether to store only in memory
      * @returns {Promise<boolean>} - Whether the operation was successful

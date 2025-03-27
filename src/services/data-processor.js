@@ -21,7 +21,7 @@ class DataProcessor {
 
     /**
      * Gets the user's watchlist enriched with ratings and watch history
-     * @param {Object} [options] - Optional parameters
+     * @param {object} [options] - Optional parameters
      * @param {string} [options.type] - Filter by type: movies, shows, seasons, episodes
      * @param {string} [options.sort='rank'] - How to sort: rank, added, released, title
      * @param {number} [options.limit] - Number of items to return
@@ -68,7 +68,7 @@ class DataProcessor {
 
     /**
      * Gets trending items enriched with ratings and watch history
-     * @param {Object} [options] - Optional parameters
+     * @param {object} [options] - Optional parameters
      * @param {string} [options.type='movies'] - Type: movies or shows
      * @param {number} [options.limit=10] - Number of items to return
      * @param {number} [options.page=1] - Page number
@@ -168,7 +168,7 @@ class DataProcessor {
 
     /**
      * Searches for items and enriches them with ratings and watch history
-     * @param {Object} options - Search parameters
+     * @param {object} options - Search parameters
      * @param {string} options.query - Search query
      * @param {string} [options.type] - Filter by type: movie, show, episode, person, list
      * @param {number} [options.limit=10] - Number of items to return
@@ -247,11 +247,11 @@ class DataProcessor {
 
     /**
      * Gets trending items with additional information
-     * @param {Object} [options] - Optional parameters
+     * @param {object} [options] - Optional parameters
      * @param {boolean} [options.forceRefresh=false] - Whether to force a refresh
      * @param {boolean} [options.autoPaginate=true] - Whether to automatically fetch all pages
      * @param {number|null} [options.maxPages=null] - Maximum number of pages to fetch
-     * @returns {Promise<{movies: {items: Array, pagination: Object}, shows: {items: Array, pagination: Object}}>} - Object containing trending movies and shows with history and ratings
+     * @returns {Promise<{movies: {items: Array, pagination: object}, shows: {items: Array, pagination: object}}>} - Object containing trending movies and shows with history and ratings
      */
     async getFullTrending({ forceRefresh = false, autoPaginate = true, maxPages = null } = {}) {
         // Get trending movies and shows

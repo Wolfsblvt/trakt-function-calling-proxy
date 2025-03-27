@@ -4,7 +4,7 @@ import fs from 'fs';
 dotenv.config();
 
 /**
- * @typedef {Object} Config
+ * @typedef {object} Config
  * @property {string} APP_CLIENT_ID
  * @property {string} APP_CLIENT_SECRET
  * @property {string} REFRESH_TOKEN

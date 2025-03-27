@@ -102,7 +102,7 @@ class TraktClient {
      * @template T
      * @param {string} endpoint - API endpoint
      * @param {import('node-fetch').RequestInit} [initOptions={}] - Request options
-     * @param {Object} [options={}] - Additional options
+     * @param {object} [options={}] - Additional options
      * @param {boolean} [options.autoPaginate=false] - Whether to automatically fetch all pages
      * @param {number|null} [options.maxPages=null] - Maximum number of pages to fetch (null for unlimited)
      * @returns {Promise<{data: T[], pagination: Trakt.Pagination}>}
@@ -218,7 +218,7 @@ class TraktClient {
     /**
      * Builds a URL with optional route segments and query parameters
      * @param {string} baseUrl - The base URL with optional segment placeholders (e.g., ":type")
-     * @param {Object} [params={}] - Parameters that can be used as segments or query parameters
+     * @param {object} [params={}] - Parameters that can be used as segments or query parameters
      * @returns {string} - The complete URL with segments and query parameters
      */
     #buildUrl(baseUrl, params = {}) {
@@ -263,7 +263,7 @@ class TraktClient {
 
     /**
      * Get the user's watchlist with auto-pagination support
-     * @param {Object} [options] - Optional parameters
+     * @param {object} [options] - Optional parameters
      * @param {string} [options.type] - Filter by type: movies, shows, seasons, episodes
      * @param {string} [options.sort='rank'] - How to sort: rank, added, released, title
      * @param {Props.PaginationProps} [options.pagination] - Pagination options
@@ -306,7 +306,7 @@ class TraktClient {
 
     /**
      * Get trending items with auto-pagination support
-     * @param {Object} [options] - Optional parameters
+     * @param {object} [options] - Optional parameters
      * @param {string} [options.type='movies'] - Type: movies or shows
      * @param {Props.PaginationProps} [options.pagination] - Pagination options
      * @returns {Promise<{data: Trakt.TrendingItem[], pagination: Trakt.Pagination}>} - The trending items with pagination info
@@ -318,7 +318,7 @@ class TraktClient {
 
     /**
      * Get search results with auto-pagination support
-     * @param {Object} options - Search parameters
+     * @param {object} options - Search parameters
      * @param {string} options.query - Search query
      * @param {string} [options.type] - Filter by type: movie, show, episode, person, list
      * @param {Props.PaginationProps} [options.pagination] - Pagination options

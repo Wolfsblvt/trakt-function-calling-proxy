@@ -11,7 +11,7 @@ import cacheManager, { CACHE_TYPES, DEFAULT_TTL } from './cache-manager.js';
  * using a proxy pattern to avoid duplicating all methods
  */
 class CachedTraktClient {
-    /** @type {Object} The original Trakt client */
+    /** @type {object} The original Trakt client */
     #traktClient;
 
     /** @type {boolean} */
@@ -19,7 +19,7 @@ class CachedTraktClient {
 
     /**
      * Creates a new CachedTraktClient instance
-     * @param {Object} client - The Trakt client to wrap
+     * @param {object} client - The Trakt client to wrap
      */
     constructor(client) {
         this.#traktClient = client;
@@ -46,7 +46,7 @@ class CachedTraktClient {
     /**
      * Creates a cached version of a Trakt client method
      * @param {string} methodName - The name of the method to cache
-     * @returns {Function} A cached version of the method
+     * @returns {function} A cached version of the method
      */
     #createCachedMethod(methodName) {
         // Determine the cache type based on the method name
@@ -75,9 +75,9 @@ class CachedTraktClient {
      * Makes a cached API request or fetches fresh data
      * @template T
      * @param {string} cacheType - Type of cache (e.g., 'history', 'ratings')
-     * @param {Function} fetchFunction - Function to call if cache miss
-     * @param {Object} [params={}] - Parameters to pass to the fetch function
-     * @param {Object} [options={}] - Cache options
+     * @param {function} fetchFunction - Function to call if cache miss
+     * @param {object} [params={}] - Parameters to pass to the fetch function
+     * @param {object} [options={}] - Cache options
      * @param {boolean} [options.forceRefresh=false] - Whether to force a refresh
      * @param {number} [options.ttl] - Custom TTL in seconds
      * @returns {Promise<T>} - The cached or fresh data

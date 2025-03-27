@@ -31,7 +31,7 @@ router.get('/', async (req, res) => {
         } = req.query;
 
         // Convert query parameters to appropriate types
-        /** @type {Object & AllowForceRefresh & {autoPaginate?: boolean, maxPages?: number|null}} */
+        /** @type {object & AllowForceRefresh & {autoPaginate?: boolean, maxPages?: number | null}} */
         const options = {
             type: typeParam && typeof typeParam === 'string' && TRAKT_WATCH_TYPES[typeParam.toUpperCase()] ? TRAKT_WATCH_TYPES[typeParam.toUpperCase()] : undefined,
             sort: sortParam ? String(sortParam) : undefined,
