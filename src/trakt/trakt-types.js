@@ -23,7 +23,7 @@
 /**
  * @typedef {object} TraktIds
  * @property {number} trakt - Trakt ID
- * @property {string} [slug] - Slug
+ * @property {string} [slug] - Slug (unique identifier for urls or similar)
  * @property {string} [imdb] - IMDB ID
  * @property {number} [tmdb] - TMDB ID
  * @property {number} [tvdb] - TVDB ID
@@ -65,12 +65,15 @@
 
 /**
  * @typedef {object} WatchlistItem
+ * @property {number} id - Watchlist ID
+ * @property {number} rank - Rank of the item in the watchlist
+ * @property {string} [notes] - User-added notes for the watchlist item
  * @property {string} listed_at - ISO 8601 UTC datetime when the item was added to the watchlist
- * @property {string} type - Type of item: movie, show, season, episode
- * @property {TraktMovie|TraktShow|TraktSeason|TraktEpisode} [movie] - Movie data if type is movie
- * @property {TraktMovie|TraktShow|TraktSeason|TraktEpisode} [show] - Show data if type is show
- * @property {TraktMovie|TraktShow|TraktSeason|TraktEpisode} [season] - Season data if type is season
- * @property {TraktMovie|TraktShow|TraktSeason|TraktEpisode} [episode] - Episode data if type is episode
+ * @property {'movies'|'shows'|'seasons'|'episodes'} type - Type of item: movie, show, season, episode
+ * @property {TraktMovie} [movie] - Movie data if type is movie
+ * @property {TraktShow} [show] - Show data if type is show
+ * @property {TraktSeason} [season] - Season data if type is season
+ * @property {TraktEpisode} [episode] - Episode data if type is episode
  */
 
 /**
@@ -78,7 +81,7 @@
  * @property {number} id - History ID
  * @property {string} watched_at - ISO 8601 UTC datetime when the item was watched
  * @property {string} action - Action (scrobble, checkin, etc.)
- * @property {string} type - Type of item: movie, show, season, episode
+ * @property {'movies'|'shows'|'seasons'|'episodes'} type - Type of item: movie, show, season, episode
  * @property {TraktMovie} [movie] - Movie data if type is movie
  * @property {TraktShow} [show] - Show data if type is show
  * @property {TraktSeason} [season] - Season data if type is season
@@ -97,15 +100,53 @@
  */
 
 /**
+ * @typedef {object} FavoriteItem
+ * @property {number} id - Favorite ID
+ * @property {number} rank - Rank of the favorite
+ * @property {string} [notes] - User-added notes for the favorite
+ * @property {string} listed_at - ISO 8601 UTC datetime when the item was favorited
+ * @property {'movies'|'shows'|'seasons'|'episodes'} type - Type of item: movie, show, season, episode
+ * @property {TraktMovie} [movie] - Movie data if type is movie
+ * @property {TraktShow} [show] - Show data if type is show
+ * @property {TraktSeason} [season] - Season data if type is season
+ * @property {TraktEpisode} [episode] - Episode data if type is episode
+ */
+
+/**
+ * @typedef {object} WatchedItem
+ * @property {number} plays - Number of plays for the item
+ * @property {string} last_watched_at - ISO 8601 UTC datetime when the item was last watched
+ * @property {string} last_updated_at - ISO 8601 UTC datetime when the item was last updated
+ * @property {string} [reset_at] - ISO 8601 UTC datetime when the item was reset (available for shows and seasons, for a rewatch)
+ * @property {TraktShow} [show] - Show data if type is show
+ * @property {WatchedSeason[]} [seasons] - Array of watched seasons with episode details
+ * @property {TraktMovie} [movie] - Movie data if type is movie
+ * @property {TraktEpisode} [episode] - Episode data if type is episode
+ */
+
+/**
+ * @typedef {object} WatchedSeason
+ * @property {number} number - Season number
+ * @property {WatchedEpisode[]} episodes - Array of watched episodes in this season
+ */
+
+/**
+ * @typedef {object} WatchedEpisode
+ * @property {number} number - Episode number
+ * @property {number} plays - Number of plays for this episode
+ * @property {string} last_watched_at - ISO 8601 UTC datetime when this episode was last watched
+ */
+
+/**
  * @typedef {object} TrendingItem
  * @property {number} watchers - Number of users watching
- * @property {TraktMovie|TraktShow} movie - Movie data if type is movie
- * @property {TraktMovie|TraktShow} show - Show data if type is show
+ * @property {TraktMovie} [movie] - Movie data if type is movie
+ * @property {TraktShow} [show] - Show data if type is show
  */
 
 /**
  * @typedef {object} SearchResult
- * @property {string} type - Type of result: movie, show, episode, person, list
+ * @property {'movies'|'shows'|'episodes'|'person'|'list'} type - Type of result: movie, show, episode, person, list
  * @property {number} score - Search score
  * @property {TraktMovie} [movie] - Movie data if type is movie
  * @property {TraktShow} [show] - Show data if type is show

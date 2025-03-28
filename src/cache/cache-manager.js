@@ -3,11 +3,13 @@ import storage from 'node-persist';
 /**
  * Cache types enum
  * @readonly
- * @enum {string}
+ * @enum {'history'|'ratings'|'watchlist'|'trending'|'search'}
  */
 export const CACHE_TYPES = Object.freeze({
     HISTORY: 'history',
     RATINGS: 'ratings',
+    FAVORITES: 'favorites',
+    WATCHED: 'watched',
     WATCHLIST: 'watchlist',
     TRENDING: 'trending',
     SEARCH: 'search',
@@ -22,7 +24,9 @@ export const DEFAULT_TTL = Object.freeze({
     DEFAULT: 60 * 60, // 1 hour
     [CACHE_TYPES.HISTORY]: 60 * 5,    // 5 minutes
     [CACHE_TYPES.RATINGS]: 60 * 5,     // 5 minutes
-    [CACHE_TYPES.WATCHLIST]: 60 * 5,   // 5 minutes
+    [CACHE_TYPES.FAVORITES]: 60 * 5,   // 5 minutes
+    [CACHE_TYPES.WATCHED]: 60 * 5,     // 5 minutes
+    [CACHE_TYPES.WATCHLIST]: 60 * 60,  // 60 minutes
     [CACHE_TYPES.TRENDING]: 60 * 60,    // 60 minutes
     [CACHE_TYPES.SEARCH]: 60 * 60,       // 60 minutes
 });

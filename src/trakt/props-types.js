@@ -13,7 +13,6 @@
  * Options for getting the user's watch history
  * @typedef {object} GetHistoryProps
  * @property {TRAKT_WATCH_TYPES?} [type=null] - Filter by type: movies, shows, seasons, episodes
- * @property {number?} [itemId=null] - Trakt ID for a specific item
  * @property {Date?} [startAt=null] - Starting date
  * @property {Date?} [endAt=null] - Ending date
 */

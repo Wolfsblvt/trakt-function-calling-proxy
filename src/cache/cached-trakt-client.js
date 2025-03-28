@@ -74,7 +74,8 @@ class CachedTraktClient {
      */
     #createCachedMethod(methodName) {
         // Determine the cache type based on the method name
-        const cacheType = Object.values(CACHE_TYPES).find(type => methodName.toLowerCase().includes(type.toLowerCase())) || methodName;
+        const cacheType = Object.values(CACHE_TYPES).find(type => methodName.toLowerCase().includes(type.toLowerCase()))
+            || methodName.replace(/^get/i, '').toLowerCase();
 
         // Return a function that wraps the original method with caching
         return async (params = {}) => {

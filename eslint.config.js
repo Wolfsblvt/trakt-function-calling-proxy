@@ -112,6 +112,7 @@ export default defineConfig([
             'perfectionist/sort-enums': 'off',
             'perfectionist/sort-union-types': 'off',
             'perfectionist/sort-classes': 'off',
+            'perfectionist/sort-array-includes': 'off',
         },
         settings: {
             'import/resolver': {
