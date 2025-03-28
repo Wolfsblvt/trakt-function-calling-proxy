@@ -1,5 +1,3 @@
-
-
 /** @import * as Trakt from '../../trakt/trakt-types.js' */
 
 /**
@@ -26,3 +24,5 @@
  * @property {string|null} watched_at - When the item was watched
  * @property {string|null} action - The action taken (e.g., 'watch', 'checkin')
  */
+
+export { };

@@ -74,8 +74,9 @@ class CachedTraktClient {
      */
     #createCachedMethod(methodName) {
         // Determine the cache type based on the method name
-        const cacheType = Object.values(CACHE_TYPES).find(type => methodName.toLowerCase().includes(type.toLowerCase()))
-            || methodName.replace(/^get/i, '').toLowerCase();
+        const methodNameType = methodName.replace(/^get/i, '').toLowerCase();
+        const cacheType = Object.values(CACHE_TYPES).find(type => methodNameType.startsWith(type.toLowerCase()))
+            || methodNameType;
 
         // Return a function that wraps the original method with caching
         return async (params = {}) => {
@@ -115,6 +116,7 @@ class CachedTraktClient {
         if (!forceRefresh) {
             const cachedData = await cacheManager.get(cacheKey);
             if (cachedData) {
+                cachedData._cached = true;
                 return cachedData;
             }
         }
@@ -131,6 +133,7 @@ class CachedTraktClient {
                 const staleData = await cacheManager.get(cacheKey);
                 if (staleData) {
                     console.warn(`Failed to refresh ${cacheType} data, using stale data:`, error.message);
+                    staleData._cached = true;
                     return staleData;
                 }
             }

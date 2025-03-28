@@ -111,14 +111,23 @@ class TraktClient {
      * @param {Props.GetHistoryProps & Props.PaginationProps} [options={}] - Optional parameters
      * @returns {Promise<{data: Trakt.HistoryItem[], pagination: Trakt.Pagination}>} - The history with pagination info
      */
-    async getHistory({ type = null, startAt = null, endAt = null, limit = DEFAULT_PAGE_SIZES.HISTORY, page = 1, autoPaginate = false, maxPages = null } = {}) {
+    async getHistory({ type = null, startAt = null, endAt = null, limit = DEFAULT_PAGE_SIZES.HISTORY, page = 1 } = {}) {
         const url = this.#buildUrl(`${TRAKT_API_URL}/users/me/history/:type`, {
             type,
             start_at: startAt?.toISOString(),
             end_at: endAt?.toISOString(),
             ...this.#buildPagination(limit, page),
         });
-        return await this.#makePaginatedRequest(url, {}, { autoPaginate, maxPages });
+        return await this.#makePaginatedRequest(url, {}, { autoPaginate: true });
+    }
+
+    /**
+     * Get user statistics
+     * @returns {Promise<Trakt.StatsResponse>} - User statistics
+     */
+    async getStats() {
+        const url = this.#buildUrl(`${TRAKT_API_URL}/users/me/stats`);
+        return await this.#makeRequest(url);
     }
 
     // /**

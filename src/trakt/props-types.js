@@ -3,10 +3,8 @@
 /**
  * Options for pagination
  * @typedef {object} PaginationProps
- * @property {number?} [limit] - Number of items per page
- * @property {number?} [page=1] - Page number
- * @property {boolean} [autoPaginate=false] - Whether to automatically fetch all pages
- * @property {number?} [maxPages=null] - Maximum number of pages to fetch
+ * @property {number} [limit] - Number of items per page
+ * @property {number} [page=1] - Page number
  */
 
 /**

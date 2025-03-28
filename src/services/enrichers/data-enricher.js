@@ -1,5 +1,6 @@
 /** @import * as Trakt from '../../trakt/trakt-types.js' */
 /** @import * as Props from '../../trakt/props-types.js' */
+/** @import * as Enriched from './data-enricher-types.js' */
 
 /**
  * DataEnricher class for enriching Trakt data with additional information
@@ -7,7 +8,7 @@
 class DataEnricher {
     /**
      * Creates a unique key for an item based on its type and ID
-     * @param {TraktItemBase} item - The item to create a key for
+     * @param {Enriched.TraktItemBase} item - The item to create a key for
      * @returns {string} A unique key for the item
      */
     createItemKey(item) {
@@ -27,9 +28,9 @@ class DataEnricher {
     /**
      * Enriches items with ratings
      * @template T
-     * @param {Array<T & TraktItemBase>} items - The items to enrich
+     * @param {Array<T & Enriched.TraktItemBase>} items - The items to enrich
      * @param {Array<Trakt.RatingItem>} ratings - The ratings to use for enrichment
-     * @returns {Array<T & TraktItemBase & EnrichedWithRating>} The enriched items
+     * @returns {Array<T & Enriched.TraktItemBase & Enriched.EnrichedWithRating>} The enriched items
      */
     enrichWithRatings(items, ratings) {
         if (!items?.length || !ratings?.length) {
@@ -59,9 +60,9 @@ class DataEnricher {
     /**
      * Enriches items with watch history
      * @template T
-     * @param {Array<T & TraktItemBase>} items - The items to enrich
+     * @param {Array<T & Enriched.TraktItemBase>} items - The items to enrich
      * @param {Array<Trakt.HistoryItem>} history - The history to use for enrichment
-     * @returns {Array<T & TraktItemBase & EnrichedWithHistory>} The enriched items
+     * @returns {Array<T & Enriched.TraktItemBase & Enriched.EnrichedWithHistory>} The enriched items
      */
     enrichWithWatchHistory(items, history) {
         if (!items?.length || !history?.length) {
@@ -100,10 +101,10 @@ class DataEnricher {
     /**
      * Enriches items with both ratings and watch history
      * @template T
-     * @param {Array<T & TraktItemBase>} items - The items to enrich
+     * @param {Array<T & Enriched.TraktItemBase>} items - The items to enrich
      * @param {Array<Trakt.RatingItem>} ratings - The ratings to use for enrichment
      * @param {Array<Trakt.HistoryItem>} history - The history to use for enrichment
-     * @returns {Array<T & TraktItemBase & EnrichedWithRating & EnrichedWithHistory>} The enriched items
+     * @returns {Array<T & Enriched.TraktItemBase & Enriched.EnrichedWithRating & Enriched.EnrichedWithHistory>} The enriched items
      */
     enrichWithRatingsAndHistory(items, ratings, history) {
         const withRatings = this.enrichWithRatings(items, ratings);

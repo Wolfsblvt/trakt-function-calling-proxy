@@ -10,6 +10,7 @@ export const CACHE_TYPES = Object.freeze({
     RATINGS: 'ratings',
     FAVORITES: 'favorites',
     WATCHED: 'watched',
+    STATS: 'stats',
     WATCHLIST: 'watchlist',
     TRENDING: 'trending',
     SEARCH: 'search',
@@ -21,14 +22,15 @@ export const CACHE_TYPES = Object.freeze({
  * @enum {number}
  */
 export const DEFAULT_TTL = Object.freeze({
-    DEFAULT: 60 * 60, // 1 hour
-    [CACHE_TYPES.HISTORY]: 60 * 5,    // 5 minutes
-    [CACHE_TYPES.RATINGS]: 60 * 5,     // 5 minutes
-    [CACHE_TYPES.FAVORITES]: 60 * 5,   // 5 minutes
-    [CACHE_TYPES.WATCHED]: 60 * 5,     // 5 minutes
-    [CACHE_TYPES.WATCHLIST]: 60 * 60,  // 60 minutes
+    DEFAULT: 60 * 60,                   // 60 minutes
+    [CACHE_TYPES.HISTORY]: 60 * 5,      //  5 minutes
+    [CACHE_TYPES.RATINGS]: 60 * 5,      //  5 minutes
+    [CACHE_TYPES.FAVORITES]: 60 * 5,    //  5 minutes
+    [CACHE_TYPES.WATCHED]: 60 * 5,      //  5 minutes
+    [CACHE_TYPES.STATS]: 60 * 5,        //  5 minutes
+    [CACHE_TYPES.WATCHLIST]: 60 * 60,   // 60 minutes
     [CACHE_TYPES.TRENDING]: 60 * 60,    // 60 minutes
-    [CACHE_TYPES.SEARCH]: 60 * 60,       // 60 minutes
+    [CACHE_TYPES.SEARCH]: 60 * 60,      // 60 minutes
 });
 
 const MEM_CACHE_CLEANUP_INTERVAL = 5 * 60 * 1_000;
@@ -53,7 +55,7 @@ class CacheManager {
             parse: JSON.parse,
             encoding: 'utf8',
             logging: false,
-            ttl: DEFAULT_TTL.DEFAULT * 1_000,         // Default TTL: 1 hour (in ms)
+            ttl: DEFAULT_TTL.DEFAULT * 1_000,         // Default TTL: 60 minutes (in ms)
         });
         console.log('Disk cache initialized');
 
