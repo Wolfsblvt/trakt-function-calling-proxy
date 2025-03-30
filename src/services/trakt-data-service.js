@@ -1,5 +1,5 @@
 import cachedTraktClient from '../cache/cached-trakt-client.js';
-import { DEFAULT_MAX_ITEMS } from '../trakt/client.js';
+import { DEFAULT_LIMITS } from '../trakt/client.js';
 import traktEnrichmentService from './trakt-enrichment-service.js';
 
 /** @import * as Trakt from '../trakt/trakt-types.js' */
@@ -18,9 +18,9 @@ class TraktDataService {
      * @param {Props.GetHistoryProps & Props.PaginationProps} [options={}] - Optional parameters
      * @returns {Promise<{data: Trakt.HistoryItem[], pagination: Trakt.Pagination}>} - The history with pagination info
      */
-    async getHistory({ type = 'all', startAt = null, endAt = null, maxItems = DEFAULT_MAX_ITEMS.HISTORY } = {}) {
+    async getHistory({ type = 'all', startAt = null, endAt = null, limit = DEFAULT_LIMITS.HISTORY } = {}) {
         // Fetch history from Trakt API
-        const response = await cachedTraktClient.getHistory({ type, startAt, endAt, maxItems });
+        const response = await cachedTraktClient.getHistory({ type, startAt, endAt, limit });
 
         // If extended info is requested, enrich the history items
         const enrichedData = await traktEnrichmentService.enrichHistory(response.data);

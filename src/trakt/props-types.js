@@ -3,7 +3,7 @@
 /**
  * Options for pagination
  * @typedef {object} PaginationProps
- * @property {number} [maxItems] - Maximum number of items to fetch (null for unlimited)
+ * @property {number} [limit] - Maximum number of items to fetch (null for unlimited)
  */
 
 /**
