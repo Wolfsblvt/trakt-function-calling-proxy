@@ -30,12 +30,17 @@ export const TRAKT_CONTENT_TYPES = Object.freeze({
 
 /**
  * Constants for default page sizes
- * @enum {number?}
+ * @enum {number|null}
  */
 export const DEFAULT_PAGE_SIZES = Object.freeze({
     DEFAULT: 1_000,
     HISTORY: 100,
     RATINGS: null,
+});
+
+export const DEFAULT_MAX_ITEMS = Object.freeze({
+    DEFAULT: 50,
+    HISTORY: 50,
 });
 
 class TraktClient {
@@ -69,7 +74,7 @@ class TraktClient {
      */
     async getWatchlist() {
         const url = this.#buildUrl(`${TRAKT_API_URL}/users/me/watchlist`);
-        const watchlist = await this.#makeRequest(url, {});
+        const { data: watchlist } = (await this.#makeRequest(url, {}));
         return watchlist;
     }
 
@@ -79,7 +84,7 @@ class TraktClient {
      */
     async getRatings() {
         const url = this.#buildUrl(`${TRAKT_API_URL}/users/me/ratings`);
-        const ratings = await this.#makeRequest(url);
+        const { data: ratings } = await this.#makeRequest(url);
         return ratings;
     }
 
@@ -89,7 +94,7 @@ class TraktClient {
      */
     async getFavorites() {
         const url = this.#buildUrl(`${TRAKT_API_URL}/users/me/favorites`);
-        const favorites = await this.#makeRequest(url);
+        const { data: favorites } = await this.#makeRequest(url);
         return favorites;
     }
 
@@ -99,10 +104,10 @@ class TraktClient {
      * @returns {Promise<Trakt.WatchedItem[]>} - The watched items
      */
     async getWatched(type) {
-        if (!type || !['movies', 'shows', 'episodes'].includes(type)) throw new Error('TraktClient.getWatched requires a valid type parameter.');
+        if (!['movies', 'shows', 'episodes'].includes(type)) throw new Error(`TraktClient.getWatched requires a valid type parameter ('movies', 'shows', or 'episodes'), but was: '${type}'.`);
 
         const url = this.#buildUrl(`${TRAKT_API_URL}/users/me/watched/:type`, { type });
-        const watched = await this.#makeRequest(url);
+        const { data: watched } = await this.#makeRequest(url);
         return watched;
     }
 
@@ -111,14 +116,14 @@ class TraktClient {
      * @param {Props.GetHistoryProps & Props.PaginationProps} [options={}] - Optional parameters
      * @returns {Promise<{data: Trakt.HistoryItem[], pagination: Trakt.Pagination}>} - The history with pagination info
      */
-    async getHistory({ type = null, startAt = null, endAt = null, limit = DEFAULT_PAGE_SIZES.HISTORY, page = 1 } = {}) {
+    async getHistory({ type = 'all', startAt = null, endAt = null, maxItems = DEFAULT_MAX_ITEMS.HISTORY } = {}) {
         const url = this.#buildUrl(`${TRAKT_API_URL}/users/me/history/:type`, {
             type,
             start_at: startAt?.toISOString(),
             end_at: endAt?.toISOString(),
-            ...this.#buildPagination(limit, page),
+            ...this.#buildPagination(DEFAULT_PAGE_SIZES.HISTORY),
         });
-        return await this.#makePaginatedRequest(url, {}, { autoPaginate: true });
+        return await this.#makePaginatedRequest(url, {}, { autoPaginate: true, maxItems });
     }
 
     /**
@@ -127,7 +132,8 @@ class TraktClient {
      */
     async getStats() {
         const url = this.#buildUrl(`${TRAKT_API_URL}/users/me/stats`);
-        return await this.#makeRequest(url);
+        const { data: stats } = await this.#makeRequest(url);
+        return stats;
     }
 
     // /**
@@ -138,8 +144,8 @@ class TraktClient {
     //  * @returns {Promise<{data: Trakt.TrendingItem[], pagination: Trakt.Pagination}>} - The trending items with pagination info
     //  */
     // async getTrending({ type = 'movies', pagination = {} } = {}) {
-    //     const url = this.#buildUrl(`${TRAKT_API_URL}/trending/${type}`, { ...this.#buildPagination(pagination.limit, pagination.page) });
-    //     return await this.#makePaginatedRequest(url, {}, { autoPaginate: pagination.autoPaginate, maxPages: pagination.maxPages });
+    //     const url = this.#buildUrl(`${TRAKT_API_URL}/trending/${type}`, { ...this.#buildPagination(pagination.pageSize, pagination.page) });
+    //     return await this.#makePaginatedRequest(url, {}, { autoPaginate: pagination.autoPaginate, maxItems: pagination.maxItems });
     // }
 
     // /**
@@ -151,8 +157,8 @@ class TraktClient {
     //  * @returns {Promise<{data: Trakt.SearchResult[], pagination: Trakt.Pagination}>} - The search results with pagination info
     //  */
     // async search({ query, type, pagination = {} }) {
-    //     const url = this.#buildUrl(`${TRAKT_API_URL}/search/${type || 'movie,show'}`, { query, ...this.#buildPagination(pagination.limit, pagination.page) });
-    //     return await this.#makePaginatedRequest(url, {}, { autoPaginate: pagination.autoPaginate, maxPages: pagination.maxPages });
+    //     const url = this.#buildUrl(`${TRAKT_API_URL}/search/${type || 'movie,show'}`, { query, ...this.#buildPagination(pagination.pageSize, pagination.page) });
+    //     return await this.#makePaginatedRequest(url, {}, { autoPaginate: pagination.autoPaginate, maxItems: pagination.maxItems });
     // }
 
     /**
@@ -161,7 +167,7 @@ class TraktClient {
      * @param {import('node-fetch').RequestInit} [initOptions={}]
      * @param {object} [options={}] - Optional options
      * @param {boolean} [options.retry=true] - Whether to retry on 401
-     * @returns {Promise<T>}
+     * @returns {Promise<{data: T, response: import('node-fetch').Response}>}
      */
     async #makeRequest(endpoint, initOptions = {}, { retry = true } = {}) {
         await this.#ensureTokenValid();
@@ -187,7 +193,8 @@ class TraktClient {
             throw new Error(`Trakt API responded [${response.status} - ${errorData.error}] ${errorData.error_description}`);
         }
 
-        return /** @type {T} */ (await response.json());
+        const data = /** @type {T} */ (await response.json());
+        return { data, response };
     }
 
     /**
@@ -197,28 +204,28 @@ class TraktClient {
      * @param {import('node-fetch').RequestInit} [initOptions={}] - Request options
      * @param {object} [options={}] - Additional options
      * @param {boolean} [options.autoPaginate=false] - Whether to automatically fetch all pages
-     * @param {number|null} [options.maxPages=null] - Maximum number of pages to fetch (null for unlimited)
+     * @param {number?} [options.maxItems=null] - Maximum number of items to fetch (null for unlimited)
      * @returns {Promise<{data: T[], pagination: Trakt.Pagination}>}
      */
-    async #makePaginatedRequest(endpoint, initOptions = {}, { autoPaginate = false, maxPages = null } = {}) {
+    async #makePaginatedRequest(endpoint, initOptions = {}, { autoPaginate = false, maxItems = null } = {}) {
         // Make the initial request
-        const response = await this.#makeRequest(endpoint, initOptions);
+        const { data, response } = await this.#makeRequest(endpoint, initOptions);
 
         // Parse pagination headers
         const itemCount = Number(response.headers.get('x-pagination-item-count')) || 0;
         const pageCount = Number(response.headers.get('x-pagination-page-count')) || 1;
-        const limit = Number(response.headers.get('x-pagination-limit')) || 0;
+        const pageSize = Number(response.headers.get('x-pagination-limit')) || 0;
         let page = Number(response.headers.get('x-pagination-page')) || 1;
 
-        // Parse the response body
-        /** @type {T[]} */
-        const data = await parseJson(response);
-
-        const untilPage = Math.min(pageCount, maxPages ?? Number.MAX_SAFE_INTEGER);
+        // if maxItems is set, calculate the untilPage based on the page size
+        let untilPage = maxItems
+            ? Math.min(pageCount, Math.ceil(maxItems / pageSize))
+            : pageCount;
 
         // If auto-pagination is disabled or we're on the last page, return the data
         if (!autoPaginate || page >= untilPage) {
-            return { data, pagination: { itemCount, pageCount, limit, page } };
+            const slicedData = this.#sliceData(data, maxItems);
+            return { data: slicedData, pagination: { itemCount, pageCount, pageSize, page } };
         }
 
         // Otherwise, fetch the remaining pages
@@ -239,9 +246,12 @@ class TraktClient {
         // Combine all the data
         const allData = [...data, ...additionalData.flat()];
 
+        // if maxItems is set, truncate the data to the maxItems
+        const slicedData = this.#sliceData(allData, maxItems);
+
         return {
-            data: allData,
-            pagination: { itemCount, pageCount, limit, page },
+            data: slicedData,
+            pagination: { itemCount, pageCount, pageSize, page },
         };
     }
 
@@ -278,6 +288,8 @@ class TraktClient {
             this.#accessToken = data.access_token;
             this.#refreshToken = data.refresh_token;
             this.#tokenExpiresAt = Date.now() + data.expires_in * 1_000;
+
+            console.debug(`Access Token: ${this.#accessToken}`);
 
             // Save the new refresh token to the .env file
             config.REFRESH_TOKEN = this.#refreshToken;
@@ -323,15 +335,29 @@ class TraktClient {
 
     /**
      * Builds pagination parameters for a Trakt API request
-     * @param {number?} [limit=null] - Number of items to return
-     * @param {number?} [page=1] - Page number. If `limit` is null or `page` is 1, `page` will be null.
-     * @returns {{ limit: number?; page: number? }} - Pagination parameters
+     * @param {number?} [pageSize=null] - Number of items to return
+     * @param {number?} [page=1] - Page number. If `pageSize` is null or `page` is 1, `page` will be null.
+     * @returns {{ limit: ?number; page: ?number }} - Pagination parameters
      */
-    #buildPagination(limit = null, page = 1) {
-        if (limit === null || page === 1) {
-            return { limit, page: null };
+    #buildPagination(pageSize = null, page = 1) {
+        if (pageSize === null || page === 1) {
+            return { limit: pageSize, page: null };
         }
-        return { limit, page };
+        return { limit: pageSize, page };
+    }
+
+    /**
+     * Slices the data to the specified maximum number of items
+     * @template T
+     * @param {T[]} data
+     * @param {?number} maxItems
+     * @returns {T[]}
+     */
+    #sliceData(data, maxItems) {
+        if (maxItems) {
+            return data.slice(0, maxItems);
+        }
+        return data;
     }
 }
 

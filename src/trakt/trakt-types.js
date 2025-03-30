@@ -1,11 +1,9 @@
-/** @typedef {import('./props-types.js').TRAKT_WATCH_TYPES} TRAKT_WATCH_TYPES */
-
 /**
  * Not really a trakt type, but used for responses to signify pagination info
  * @typedef {object} Pagination
  * @property {number} itemCount - Total number of items
  * @property {number} pageCount - Total number of pages
- * @property {number} limit - Number of items per page
+ * @property {number} pageSize - Number of items per page
  * @property {number} page - Current page
  */
 
@@ -23,7 +21,7 @@
  */
 
 /**
- * @typedef {object} TraktIds
+ * @typedef {object} ItemIds
  * @property {number} trakt - Trakt ID
  * @property {string} [slug] - Slug (unique identifier for urls or similar)
  * @property {string} [imdb] - IMDB ID
@@ -32,95 +30,106 @@
  */
 
 /**
- * @typedef {object} TraktItemHasIds
- * @property {TraktIds} ids - The IDs for the item
+ * @typedef {object} IWithIds
+ * @property {ItemIds} ids - The IDs for the item
  */
 
 /**
- * @typedef {object & TraktItemHasIds} TraktMovie
+ * @typedef {object} IWithTypedData
+ * @property {string} type - Type of item: movie, show, season, episode
+ */
+
+/** @typedef {TraktMovieBase & IWithIds} TraktMovie */
+/**
+ * @typedef {object} TraktMovieBase
  * @property {string} title - Movie title
  * @property {number} year - Release year
- * @property {TraktIds} ids - Movie IDs
  */
 
+/** @typedef {TraktShowBase & IWithIds} TraktShow */
 /**
- * @typedef {object & TraktItemHasIds} TraktShow
+ * @typedef {object} TraktShowBase
  * @property {string} title - Show title
  * @property {number} year - First air year
- * @property {TraktIds} ids - Show IDs
  */
 
+/** @typedef {TraktSeasonBase & IWithIds} TraktSeason */
 /**
- * @typedef {object & TraktItemHasIds} TraktSeason
+ * @typedef {object} TraktSeasonBase
  * @property {number} number - Season number
- * @property {TraktIds} ids - Season IDs
  */
 
+/** @typedef {TraktEpisodeBase & IWithIds} TraktEpisode */
 /**
- * @typedef {object & TraktItemHasIds} TraktEpisode
+ * @typedef {object} TraktEpisodeBase
  * @property {number} season - Season number
  * @property {number} number - Episode number
  * @property {string} title - Episode title
- * @property {TraktIds} ids - Episode IDs
  */
 
+/** @typedef {TraktPersonBase & IWithIds} TraktPerson */
 /**
- * @typedef {object & TraktItemHasIds} TraktPerson
+ * @typedef {object} TraktPersonBase
  * @property {string} name - Person name
- * @property {TraktIds} ids - Person IDs
  */
 
+/** @typedef {WatchlistItemBase & IWithTypedData} WatchlistItem */
 /**
- * @typedef {object} WatchlistItem
+ * @typedef {object} WatchlistItemBase
  * @property {number} id - Watchlist ID
  * @property {number} rank - Rank of the item in the watchlist
  * @property {string} [notes] - User-added notes for the watchlist item
  * @property {string} listed_at - ISO 8601 UTC datetime when the item was added to the watchlist
- * @property {TRAKT_WATCH_TYPES} type - Type of item: movie, show, season, episode
+ * @property {'movie'|'show'|'season'|'episode'} type - Type of item: movie, show, season, episode
  * @property {TraktMovie} [movie] - Movie data if type is movie
  * @property {TraktShow} [show] - Show data if type is show
  * @property {TraktSeason} [season] - Season data if type is season
  * @property {TraktEpisode} [episode] - Episode data if type is episode
  */
 
+/** @typedef {HistoryItemBase & IWithTypedData} HistoryItem */
 /**
- * @typedef {object} HistoryItem
+ * @typedef {object} HistoryItemBase
  * @property {number} id - History ID
  * @property {string} watched_at - ISO 8601 UTC datetime when the item was watched
  * @property {string} action - Action (scrobble, checkin, etc.)
- * @property {TRAKT_WATCH_TYPES} type - Type of item: movie, show, season, episode
+ * @property {'movie'|'show'|'season'|'episode'} type - Type of item: movie, show, season, episode
  * @property {TraktMovie} [movie] - Movie data if type is movie
  * @property {TraktShow} [show] - Show data if type is show
  * @property {TraktSeason} [season] - Season data if type is season
  * @property {TraktEpisode} [episode] - Episode data if type is episode
  */
 
+
+/** @typedef {RatingItemBase & IWithTypedData} RatingItem */
 /**
- * @typedef {object} RatingItem
+ * @typedef {object} RatingItemBase
  * @property {number} rating - Rating (1-10)
  * @property {string} rated_at - ISO 8601 UTC datetime when the item was rated
- * @property {TRAKT_WATCH_TYPES} type - Type of item: movie, show, season, episode
+ * @property {'movie'|'show'|'season'|'episode'} type - Type of item: movie, show, season, episode
  * @property {TraktMovie} [movie] - Movie data if type is movie
  * @property {TraktShow} [show] - Show data if type is show
  * @property {TraktSeason} [season] - Season data if type is season
  * @property {TraktEpisode} [episode] - Episode data if type is episode
  */
 
+/** @typedef {FavoriteItemBase & IWithTypedData} FavoriteItem */
 /**
- * @typedef {object} FavoriteItem
+ * @typedef {object} FavoriteItemBase
  * @property {number} id - Favorite ID
  * @property {number} rank - Rank of the favorite
  * @property {string} [notes] - User-added notes for the favorite
  * @property {string} listed_at - ISO 8601 UTC datetime when the item was favorited
- * @property {TRAKT_WATCH_TYPES} type - Type of item: movie, show, season, episode
+ * @property {'movie'|'show'|'season'|'episode'} type - Type of item: movie, show, season, episode
  * @property {TraktMovie} [movie] - Movie data if type is movie
  * @property {TraktShow} [show] - Show data if type is show
  * @property {TraktSeason} [season] - Season data if type is season
  * @property {TraktEpisode} [episode] - Episode data if type is episode
  */
 
+/** @typedef {WatchedItemBase & IWithIds} WatchedItem */
 /**
- * @typedef {object} WatchedItem
+ * @typedef {object} WatchedItemBase
  * @property {number} plays - Number of plays for the item
  * @property {string} last_watched_at - ISO 8601 UTC datetime when the item was last watched
  * @property {string} last_updated_at - ISO 8601 UTC datetime when the item was last updated
@@ -151,8 +160,9 @@
  * @property {TraktShow} [show] - Show data if type is show
  */
 
+/** @typedef {SearchResultBase & IWithTypedData} SearchResult */
 /**
- * @typedef {object} SearchResult
+ * @typedef {object} SearchResultBase
  * @property {'movies'|'shows'|'episodes'|'person'|'list'} type - Type of result: movie, show, episode, person, list
  * @property {number} score - Search score
  * @property {TraktMovie} [movie] - Movie data if type is movie

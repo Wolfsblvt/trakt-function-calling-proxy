@@ -7,6 +7,11 @@ import cacheManager, { CACHE_TYPES, DEFAULT_TTL } from './cache-manager.js';
  */
 
 /**
+ * @typedef {object} WithCacheFlag
+ * @property {boolean} [_cached] - Whether the data was cached
+ */
+
+/**
  * CachedTraktClient class that wraps TraktClient and adds caching capabilities
  * using a proxy pattern to avoid duplicating all methods
  */
@@ -80,8 +85,7 @@ class CachedTraktClient {
 
         // Return a function that wraps the original method with caching
         return async (params = {}) => {
-            const { forceRefresh: localForceRefresh, ...apiParams } = params;
-            const forceRefresh = this.#forceRefresh || localForceRefresh;
+            const forceRefresh = params.forceRefresh ?? this.#forceRefresh;
 
             // Reset the context flag after this call
             if (this.#forceRefresh) {
@@ -91,7 +95,7 @@ class CachedTraktClient {
             return await this.#cachedRequest(
                 cacheType,
                 (/** @type {any} */ p) => this.#traktClient[methodName](p),
-                apiParams,
+                params,
                 { forceRefresh },
             );
         };

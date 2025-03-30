@@ -2,7 +2,7 @@ import express from 'express';
 
 import { config } from './config.js';
 import auth from './middleware/auth.js';
-import ratingsRouter from './routes/ratings.js';
+import historyRouter from './routes/history.js';
 
 const app = express();
 
@@ -12,7 +12,7 @@ app.use(express.json());
 app.use(auth);
 
 // Define routes
-app.use('/ratings', ratingsRouter);
+app.use('/history', historyRouter);
 
 // Root endpoint
 app.get('/', (_, res) => {

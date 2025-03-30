@@ -76,6 +76,7 @@ export default defineConfig([
             '@typescript-eslint/prefer-nullish-coalescing': 'off',
             '@typescript-eslint/no-base-to-string': 'off',
             '@typescript-eslint/no-unnecessary-condition': 'off',
+            'jsdoc/valid-types': 'error',
             'jsdoc/require-param': 'warn',
             'jsdoc/require-returns': 'warn',
             'jsdoc/check-tag-names': 'warn',
@@ -113,6 +114,7 @@ export default defineConfig([
             'perfectionist/sort-union-types': 'off',
             'perfectionist/sort-classes': 'off',
             'perfectionist/sort-array-includes': 'off',
+            'perfectionist/sort-modules': 'off',
         },
         settings: {
             'import/resolver': {
