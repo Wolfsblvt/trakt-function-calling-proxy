@@ -2,9 +2,9 @@ import express from 'express';
 
 import dataService from '../services/data-service.js';
 import { DEFAULT_LIMITS, TRAKT_WATCH_TYPES } from '../trakt/client.js';
-import { parseNumberParam } from '../utils.js';
+import { createApiResponse, parseNumberParam } from '../utils.js';
 
-/** @import * as Props from '../trakt/props-types.js' */
+/** @import * as Props from '../trakt/types/props-types.js' */
 
 const router = express.Router();
 
@@ -34,21 +34,25 @@ router.get('/', async (req, res) => {
         props.endAt = new Date();
         props.startAt = new Date(props.endAt);
         props.startAt.setDate(props.startAt.getDate() - last_x_days);
+
+        if (limit === undefined) {
+            console.debug('No limit specified, but requested last_x_days, setting limit to undefined to return all items in that range.');
+            props.limit = undefined;
+        }
     }
 
-    const response = await dataService.getHistory(props);
+    const history = await dataService.getHistory(props);
 
-    const transformedResponse = {
-        count: response.data.length,
-        total: response.pagination.itemCount !== response.data.length ? response.pagination.itemCount : undefined,
-        data: response.data,
-    };
+    const response = createApiResponse(history.data, history.pagination);
 
-    if (!last_x_days) {
-        transformedResponse._note = 'To get data from a specific year or date, use getHistoryByDateRange().';
+    if (limit === undefined && last_x_days === undefined) {
+        response._info = `No limit specified, returning ${DEFAULT_LIMITS.HISTORY} items. Use 'limit' to return a specific number of items, or 'last_x_days' to return items from a specific time range.`;
     }
+    response._note = 'To get data from a specific year or date, use getHistoryByDateRange.';
 
-    res.json(transformedResponse);
+    res.json(response);
 });
+
+
 
 export default router;

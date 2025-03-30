@@ -1,4 +1,4 @@
-/** @typedef {import('./client.js').TRAKT_WATCH_TYPES} TRAKT_WATCH_TYPES */
+/** @typedef {import('../client.js').TRAKT_WATCH_TYPES} TRAKT_WATCH_TYPES */
 
 /**
  * Options for pagination

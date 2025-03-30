@@ -3,8 +3,8 @@ import fetch from 'node-fetch';
 import { config, saveConfig } from '../config.js';
 import { parseJson } from '../utils.js';
 
-/** @import * as Trakt from './trakt-types.js' */
-/** @import * as Props from './props-types.js' */
+/** @import * as Trakt from './types/trakt-types.js' */
+/** @import * as Props from './types/props-types.js' */
 
 const TRAKT_API_URL = 'https://api.trakt.tv';
 const TRAKT_API_VERSION = '2';

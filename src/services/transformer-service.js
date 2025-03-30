@@ -2,8 +2,9 @@ import cacheManager, { CACHE_TYPES } from '../cache/cache-manager.js';
 import cachedTraktClient from '../cache/cached-trakt-client.js';
 import { getItemKey } from '../trakt/trakt-utils.js';
 
-/** @import * as Trakt from '../trakt/trakt-types.js' */
-/** @import * as Props from '../trakt/props-types.js' */
+/** @import * as Trakt from '../trakt/types/trakt-types.js' */
+/** @import * as Props from '../trakt/types/props-types.js' */
+/** @import * as Enriched from '../trakt/types/enriched-types.js' */
 
 /** @typedef {import('../trakt/client.js').TRAKT_WATCH_TYPES} TRAKT_WATCH_TYPES */
 /** @typedef {import('../cache/cached-trakt-client.js').WithForceRefresh} AllowForceRefresh */
@@ -24,7 +25,7 @@ export class TransformerService {
     /**
      * Enrich a history item
      * @param {Trakt.HistoryItem[]} history - The history items to enrich
-     * @returns {Promise<Trakt.HistoryItem[]>} - The enriched history items
+     * @returns {Promise<Enriched.EnrichedHistoryItem[]>} - The enriched history items
      */
     async enrichHistory(history) {
         const indexed = await this.index.all();
@@ -36,7 +37,7 @@ export class TransformerService {
      * Enrich a single history item
      * @param {Trakt.HistoryItem} item - The history item to enrich
      * @param {AllIndexedCaches} indexed - The indexed caches
-     * @returns {Trakt.HistoryItem} - The enriched history item
+     * @returns {Enriched.EnrichedHistoryItem} - The enriched history item with additional fields
      */
     enrichHistoryItem(item, indexed) {
         const key = getItemKey(item);

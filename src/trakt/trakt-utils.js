@@ -1,4 +1,4 @@
-/** @import * as Trakt from '../trakt/trakt-types.js' */
+/** @import * as Trakt from './types/trakt-types.js' */
 
 /**
  * Create a unique key for an item based on its type and ID
