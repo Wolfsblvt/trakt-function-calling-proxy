@@ -12,9 +12,9 @@ import { getItemKey } from '../trakt/trakt-utils.js';
 /** @typedef {string} IndexId */
 
 /**
- * TraktEnrichmentService class for handling data fetching, caching, and enrichment
+ * TransformerService class for handling data fetching, caching, and enrichment
  */
-export class TraktEnrichmentService {
+export class TransformerService {
     index;
 
     constructor() {
@@ -28,21 +28,28 @@ export class TraktEnrichmentService {
      */
     async enrichHistory(history) {
         const indexed = await this.index.all();
-
-        const enrichedHistory = history.map(item => {
-            const key = getItemKey(item);
-            const { rating, watched, favorite } = indexed.get(key);
-            return {
-                ...item,
-                rating: rating?.rating,
-                plays: watched?.plays || undefined,
-                last_watched_at: watched?.last_watched_at,
-                rewatch_started: watched?.reset_at,
-                favorite: favorite ? true : undefined,
-                favorite_note: favorite?.notes || undefined,
-            };
-        });
+        const enrichedHistory = history.map(item => this.enrichHistoryItem(item, indexed));
         return enrichedHistory;
+    }
+
+    /**
+     * Enrich a single history item
+     * @param {Trakt.HistoryItem} item - The history item to enrich
+     * @param {AllIndexedCaches} indexed - The indexed caches
+     * @returns {Trakt.HistoryItem} - The enriched history item
+     */
+    enrichHistoryItem(item, indexed) {
+        const key = getItemKey(item);
+        const { rating, watched, favorite } = indexed.get(key);
+        return {
+            ...item,
+            rating: rating?.rating,
+            plays: watched?.plays || undefined,
+            last_watched_at: watched?.last_watched_at,
+            rewatch_started: watched?.reset_at,
+            favorite: favorite ? true : undefined,
+            favorite_note: favorite?.notes || undefined,
+        };
     }
 
     /**
@@ -149,6 +156,5 @@ export class TraktEnrichmentService {
     };
 }
 
-const traktEnrichmentService = new TraktEnrichmentService();
-export default traktEnrichmentService;
-
+const transformerService = new TransformerService();
+export default transformerService;

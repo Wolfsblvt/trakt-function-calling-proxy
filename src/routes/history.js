@@ -1,6 +1,6 @@
 import express from 'express';
 
-import traktDataService from '../services/trakt-data-service.js';
+import dataService from '../services/data-service.js';
 import { DEFAULT_LIMITS, TRAKT_WATCH_TYPES } from '../trakt/client.js';
 import { parseNumberParam } from '../utils.js';
 
@@ -16,6 +16,11 @@ const router = express.Router();
  * @returns {Promise<any>} - The user's history
  */
 router.get('/', async (req, res) => {
+    if (typeof req.query.type !== 'string' || !['all', ...Object.values(TRAKT_WATCH_TYPES)].includes(req.query.type)) {
+        res.status(400).json({ error: 'Invalid type' });
+        return;
+    }
+
     const limit = parseNumberParam(req.query.limit);
     const last_x_days = parseNumberParam(req.query.last_x_days);
 
@@ -25,18 +30,13 @@ router.get('/', async (req, res) => {
     props.type = /** @type {'all' | TRAKT_WATCH_TYPES} */ (req.query.type ?? 'all');
     props.limit = limit ?? DEFAULT_LIMITS.HISTORY;
 
-    if (!['all', ...Object.values(TRAKT_WATCH_TYPES)].includes(props.type)) {
-        res.status(400).json({ error: 'Invalid type' });
-        return;
-    }
-
     if (last_x_days) {
         props.endAt = new Date();
         props.startAt = new Date(props.endAt);
         props.startAt.setDate(props.startAt.getDate() - last_x_days);
     }
 
-    const response = await traktDataService.getHistory(props);
+    const response = await dataService.getHistory(props);
 
     const transformedResponse = {
         count: response.data.length,
