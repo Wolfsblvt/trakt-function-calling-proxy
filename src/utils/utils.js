@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 /**
  * @template T
  * @param {import('node-fetch').Response} response
@@ -58,25 +60,16 @@ export function getMinMaxOfItems(items, getTime) {
 };
 
 /**
- * Gets the number of days between two dates.
+ * Gets the duration between two dates.
  * @template T
  * @param {T[]} items - The array of items.
  * @param {(item: T) => Date|number} getTime - A function that returns the time for a given item.
- * @returns {?number} - The number of days between the two dates, or null if either date is null.
+ * @returns {?moment.Duration} - The duration between the two dates, or null if either date is null.
  */
-export function getDaysRangeOfItems(items, getTime) {
+export function getDurationOfItems(items, getTime) {
     const [minTime, maxTime] = getMinMaxOfItems(items, getTime);
     if (!minTime || !maxTime) return null;
-    return getDaysBetweenDates(minTime, maxTime);
+    return moment.duration(maxTime.getTime() - minTime.getTime());
 };
 
 
-/**
- * Gets the number of days between two dates.
- * @param {Date} start - The start date.
- * @param {Date} end - The end date.
- * @returns {number} - The number of days between the two dates
- */
-export function getDaysBetweenDates(start, end) {
-    return Math.ceil((end.getTime() - start.getTime()) / (1_000 * 60 * 60 * 24));
-}

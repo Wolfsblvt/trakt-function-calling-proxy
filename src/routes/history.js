@@ -1,9 +1,10 @@
 import express from 'express';
+import moment from 'moment';
 
 import dataService from '../services/data-service.js';
 import { DEFAULT_LIMITS, TRAKT_WATCH_TYPES } from '../trakt/client.js';
 import { paramParser } from '../utils/param-parser.js';
-import { createApiResponse, getDaysRangeOfItems } from '../utils/utils.js';
+import { createApiResponse, getDurationOfItems } from '../utils/utils.js';
 
 /** @import * as Props from '../trakt/types/props-types.js' */
 
@@ -12,8 +13,8 @@ const router = express.Router();
 /**
  * Get user's history
  * @param {'all'|TRAKT_WATCH_TYPES} [type='all'] - Filter by type: movies, shows, seasons, episodes
- * @param {number} [limit] - The number of items to retrieve
- * @param {number} [last_x_days] - The number of days to retrieve history from
+ * @param {number} [limit=DEFAULT_LIMITS.HISTORY] - The number of items to retrieve
+ * @param {?number} [last_x_days=null] - The number of days to retrieve history from
  * @returns {Promise<any>} - The user's history
  */
 router.get('/', async (req, res, next) => {
@@ -23,10 +24,10 @@ router.get('/', async (req, res, next) => {
         const last_x_days = paramParser.number(req.query.last_x_days, 'last_x_days');
 
         /** @type {Props.GetHistoryProps & Props.PaginationProps} */
-        const props = {};
-
-        props.type = type ?? 'all';
-        props.limit = limit ?? DEFAULT_LIMITS.HISTORY;
+        const props = {
+            type: type ?? 'all',
+            limit: limit ?? DEFAULT_LIMITS.HISTORY,
+        };
 
         if (last_x_days) {
             props.endAt = new Date();
@@ -43,8 +44,10 @@ router.get('/', async (req, res, next) => {
 
         const response = createApiResponse(history.data, history.pagination);
 
-        const days = last_x_days ?? getDaysRangeOfItems(history.data, item => new Date(item.watched_at).getTime());
-        response._info = `Includes ${days} days of history.`;
+        const duration = last_x_days
+            ? moment.duration(last_x_days, 'days')
+            : getDurationOfItems(history.data, item => new Date(item.watched_at)) ?? moment.duration(0);
+        response._info = `Includes ${duration.humanize()} of history.`;
 
         response._tip = ['To get data from a specific year or date, use /get-by-date-range.'];
         if (limit === undefined && last_x_days === undefined) {
@@ -71,19 +74,19 @@ router.get('/get-by-date-range', async (req, res, next) => {
         const endAt = paramParser.dateStrict(req.query.end_at, 'end_at');
 
         /** @type {Props.GetHistoryProps & Props.PaginationProps} */
-        const props = {};
-
-        props.type = type ?? 'all';
-        props.limit = null; // Unlimited
-        props.startAt = startAt;
-        props.endAt = endAt;
+        const props = {
+            type: type ?? 'all',
+            limit: null, // Unlimited
+            startAt,
+            endAt,
+        };
 
         const history = await dataService.getHistory(props);
 
         const response = createApiResponse(history.data, history.pagination);
 
-        const days = Math.round((endAt.getTime() - startAt.getTime()) / (1_000 * 60 * 60 * 24));
-        response._info = `Includes ${days} days of history.`;
+        const duration = moment.duration(endAt.getTime() - startAt.getTime());
+        response._info = `Includes ${duration.humanize()} of history.`;
 
         res.json(response);
     } catch (error) {
