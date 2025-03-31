@@ -3,15 +3,15 @@
 /**
  * Options for pagination
  * @typedef {object} PaginationProps
- * @property {number} [limit] - Maximum number of items to fetch (null for unlimited)
+ * @property {?number} [limit] - Maximum number of items to fetch (null for unlimited)
  */
 
 /**
  * Options for getting the user's watch history
  * @typedef {object} GetHistoryProps
  * @property {'all'|TRAKT_WATCH_TYPES} [type='all'] - Filter by type: movies, shows, seasons, episodes
- * @property {Date?} [startAt=null] - Starting date
- * @property {Date?} [endAt=null] - Ending date
+ * @property {?Date} [startAt=null] - Starting date
+ * @property {?Date} [endAt=null] - Ending date
 */
 
 /**

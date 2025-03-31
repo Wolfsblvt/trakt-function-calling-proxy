@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 
 import { config, saveConfig } from '../config.js';
-import { parseJson } from '../utils.js';
+import { parseJson } from '../utils/utils.js';
 
 /** @import * as Trakt from './types/trakt-types.js' */
 /** @import * as Props from './types/props-types.js' */
@@ -185,6 +185,9 @@ class TraktClient {
         };
 
         const response = await fetch(url, { ...initOptions, headers });
+
+        console.debug(`[TraktClient] ${initOptions.method ?? 'GET'} ${endpoint} => ${response.status} ${response.statusText}`);
+
         if (response.status === 401 && retry) {
             // Unauthorized: refresh token and retry
             await this.#refreshAccessToken();

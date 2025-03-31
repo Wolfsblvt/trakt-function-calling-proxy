@@ -96,6 +96,7 @@ export default defineConfig([
             'unicorn/no-null': 'off',
             'unicorn/no-negated-condition': 'off',
             'unicorn/no-empty-file': 'off',
+            'unicorn/no-useless-undefined': 'off',
             'perfectionist/sort-imports': ['warn', {
                 type: 'natural',
                 order: 'asc',
