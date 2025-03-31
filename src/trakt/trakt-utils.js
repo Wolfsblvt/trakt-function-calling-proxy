@@ -9,7 +9,10 @@
 export function getItemKey(item, type = null) {
     type ??= item.type;
 
-    if (!type) throw new Error('Item type must be supplied for non-typed items');
+    if (!type) {
+        console.error('Item type must be supplied for non-typed items', item);
+        throw new Error('Item type must be supplied for non-typed items');
+    }
 
     if ('ids' in item[type]) {
         return `${type}:${item[type].ids.trakt}`;

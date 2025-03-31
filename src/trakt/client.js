@@ -236,6 +236,7 @@ class TraktClient {
         }
 
         // Otherwise, fetch the remaining pages
+        /** @type {Promise<T[]>[]} */
         const pagePromises = [];
 
         for (page = page + 1; page <= untilPage; page++) {
@@ -244,7 +245,10 @@ class TraktClient {
             url.searchParams.set('page', String(page));
 
             // Add the request to the promises array
-            pagePromises.push(this.#makeRequest(url.toString(), initOptions));
+            pagePromises.push((async () => {
+                const { data } = await this.#makeRequest(url.toString(), initOptions);
+                return /** @type {T[]} */ (data);
+            })());
         }
 
         // Wait for all pages to be fetched
