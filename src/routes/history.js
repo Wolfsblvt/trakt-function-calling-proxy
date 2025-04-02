@@ -49,9 +49,9 @@ router.get('/', async (req, res, next) => {
             : getDurationOfItems(history.data, item => new Date(item.watched_at)) ?? moment.duration(0);
         response._info = `Includes ${duration.humanize()} of history.`;
 
-        response._tip = ['To get data from a specific year or date, use /get-by-date-range.'];
+        response._tips = ['To get data from a specific year or date, use /get-by-date-range.'];
         if (limit === undefined && last_x_days === undefined) {
-            response._tip.push(`No limit specified, returning ${DEFAULT_LIMITS.HISTORY} items. Use 'limit' to return a specific number of items, or 'last_x_days' to return items from a specific time range.`);
+            response._tips.push(`No limit specified, returning ${DEFAULT_LIMITS.HISTORY} items. Use 'limit' to return a specific number of items, or 'last_x_days' to return items from a specific time range.`);
         }
 
         res.json(response);
