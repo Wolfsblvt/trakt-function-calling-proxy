@@ -1,6 +1,7 @@
 /** @import * as Trakt from './trakt-types.js' */
 
 /** @typedef {Trakt.HistoryItem & IEnriched} EnrichedHistoryItem */
+/** @typedef {Trakt.RatingItem & IEnriched} EnrichedRatingItem */
 
 /**
  * @typedef {object} IEnriched

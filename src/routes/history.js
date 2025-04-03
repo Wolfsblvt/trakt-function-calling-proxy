@@ -2,24 +2,26 @@ import express from 'express';
 import moment from 'moment';
 
 import dataService from '../services/data-service.js';
-import { DEFAULT_LIMITS, TRAKT_WATCH_TYPES } from '../trakt/client.js';
+import { DEFAULT_LIMITS } from '../trakt/client.js';
 import { paramParser } from '../utils/param-parser.js';
 import { createApiResponse, getDurationOfItems } from '../utils/utils.js';
 
 /** @import * as Props from '../trakt/types/props-types.js' */
 
+/** @typedef {import('../utils/utils.js').ApiResponse<T>} ApiResponse @template T */
+
 const router = express.Router();
 
 /**
  * Get user's history
- * @param {'all'|TRAKT_WATCH_TYPES} [type='all'] - Filter by type: movies, shows, seasons, episodes
+ * @param {Props.HistoryFilterType} [type='all'] - Filter by type: movies, shows, seasons, episodes
  * @param {number} [limit=DEFAULT_LIMITS.HISTORY] - The number of items to retrieve
  * @param {?number} [last_x_days=null] - The number of days to retrieve history from
- * @returns {Promise<any>} - The user's history
+ * @returns {Promise<ApiResponse<Flattened.FlattenedHistoryItem>>} - The user's history
  */
 router.get('/', async (req, res, next) => {
     try {
-        const type = /** @type {TRAKT_WATCH_TYPES|undefined} */ (paramParser.enum(req.query.type, ['all', ...Object.values(TRAKT_WATCH_TYPES)], 'type'));
+        const type = /** @type {Props.HistoryFilterType|undefined} */ (paramParser.enum(req.query.type, ['all', 'movies', 'shows', 'seasons', 'episodes'], 'type'));
         const limit = paramParser.number(req.query.limit, 'limit');
         const last_x_days = paramParser.number(req.query.last_x_days, 'last_x_days');
 
@@ -62,14 +64,14 @@ router.get('/', async (req, res, next) => {
 
 /**
  * Get user's history by date range
- * @param {'all'|TRAKT_WATCH_TYPES} [type='all'] - Filter by type: movies, shows, seasons, episodes
+ * @param {Props.HistoryFilterType} [type='all'] - Filter by type: movies, shows, seasons, episodes
  * @param {string} start_at - ISO 8601 UTC datetime for start of the time range
  * @param {string} end_at - ISO 8601 UTC datetime for end of the time range
- * @returns {Promise<any>} - The user's history in the time range
+ * @returns {Promise<ApiResponse<Flattened.FlattenedHistoryItem>>} - The user's history in the time range
  */
 router.get('/get-by-date-range', async (req, res, next) => {
     try {
-        const type = /** @type {TRAKT_WATCH_TYPES|undefined} */ (paramParser.enum(req.query.type, ['all', ...Object.values(TRAKT_WATCH_TYPES)], 'type'));
+        const type = /** @type {Props.HistoryFilterType|undefined} */ (paramParser.enum(req.query.type, ['all', 'movies', 'shows', 'seasons', 'episodes'], 'type'));
         const startAt = paramParser.dateStrict(req.query.start_at, 'start_at');
         const endAt = paramParser.dateStrict(req.query.end_at, 'end_at');
 

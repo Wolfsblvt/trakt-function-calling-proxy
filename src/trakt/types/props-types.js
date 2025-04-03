@@ -9,16 +9,22 @@
 /**
  * Options for getting the user's watch history
  * @typedef {object} GetHistoryProps
- * @property {'all'|TRAKT_WATCH_TYPES} [type='all'] - Filter by type: movies, shows, seasons, episodes
+ * @property {HistoryFilterType} [type='all'] - Filter by type: movies, shows, seasons, episodes
  * @property {?Date} [startAt=null] - Starting date
  * @property {?Date} [endAt=null] - Ending date
 */
+/** @typedef {'all'|'movies'|'shows'|'seasons'|'episodes'} HistoryFilterType */
 
 /**
  * Options for getting the user's ratings
  * @typedef {object} GetRatingsProps
- * @property {'all'|TRAKT_WATCH_TYPES} [type] - Filter by type: movies, shows, seasons, episodes
- * @property {number|number[]?} [rating=null] - Filter by rating (1-10) or array of ratings
+ * @property {RatingsFilterType} [type='all'] - Filter by type: movies, shows, episodes
+ * @property {?number} [minRating=null] - Minimum rating to include (1-10)
+ * @property {?number} [maxRating=null] - Maximum rating to include (1-10)
+ * @property {'rating'|'rated_at'} [sortBy='rated_at'] - Field to sort by
+ * @property {'asc'|'desc'} [order='desc'] - Sort order
+ * @property {boolean} [includeUnwatched=false] - Whether to include items that haven't been watched
  */
+/** @typedef {'all'|'movies'|'shows'|'seasons'|'episodes'} RatingsFilterType */
 
 export { };

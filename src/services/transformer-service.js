@@ -1,6 +1,6 @@
 // import favorites from './transformers/favorites.js';
 import history from './transformers/history.js';
-// import ratings from './transformers/ratings.js';
+import ratings from './transformers/ratings.js';
 // import watchlist from './transformers/watchlist.js';
 
 /** @import * as Trakt from '../trakt/types/trakt-types.js' */
@@ -37,15 +37,16 @@ import history from './transformers/history.js';
 /**
  * @typedef {object} TransformerService
  * @property {Transformer<Trakt.HistoryItem, Enriched.EnrichedHistoryItem, Flattened.FlattenedHistoryItem>} history
- * @property {Transformer<Trakt.HistoryItem, Enriched.EnrichedHistoryItem, Flattened.FlattenedHistoryItem>} ratings
+ * @property {Transformer<Trakt.RatingItem, Enriched.EnrichedRatingItem, Flattened.FlattenedRatingItem>} ratings
  * @property {Transformer<Trakt.HistoryItem, Enriched.EnrichedHistoryItem, Flattened.FlattenedHistoryItem>} watchlist
  * @property {Transformer<Trakt.HistoryItem, Enriched.EnrichedHistoryItem, Flattened.FlattenedHistoryItem>} favorites
-*/
+ */
 
 /** @type {TransformerService} */
 export const transformerService = {
     history,
-    ratings: history,
+    ratings,
+    // These will be implemented later
     watchlist: history,
     favorites: history,
 };

@@ -97,6 +97,7 @@ export default defineConfig([
             'unicorn/no-negated-condition': 'off',
             'unicorn/no-empty-file': 'off',
             'unicorn/no-useless-undefined': 'off',
+            'unicorn/switch-case-braces': 'off',
             'perfectionist/sort-imports': ['warn', {
                 type: 'natural',
                 order: 'asc',
@@ -116,6 +117,7 @@ export default defineConfig([
             'perfectionist/sort-classes': 'off',
             'perfectionist/sort-array-includes': 'off',
             'perfectionist/sort-modules': 'off',
+            'perfectionist/sort-switch-case': 'off',
         },
         settings: {
             'import/resolver': {

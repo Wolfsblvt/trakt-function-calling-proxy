@@ -45,6 +45,7 @@ export const DEFAULT_PAGE_SIZES = Object.freeze({
 export const DEFAULT_LIMITS = Object.freeze({
     DEFAULT: 50,
     HISTORY: 50,
+    RATINGS: 50,
 });
 
 class TraktClient {
