@@ -3,6 +3,7 @@ import moment from 'moment';
 
 import dataService from '../services/data-service.js';
 import { DEFAULT_LIMITS } from '../trakt/client.js';
+import { parseTraktTypeWithAliases } from '../trakt/trakt-utils.js';
 import { paramParser } from '../utils/param-parser.js';
 import { createApiResponse, getDurationOfItems } from '../utils/utils.js';
 
@@ -21,7 +22,7 @@ const router = express.Router();
  */
 router.get('/', async (req, res, next) => {
     try {
-        const type = /** @type {Props.HistoryFilterType|undefined} */ (paramParser.enum(req.query.type, ['all', 'movies', 'shows', 'seasons', 'episodes'], 'type'));
+        const type = /** @type {Props.HistoryFilterType|undefined} */ (parseTraktTypeWithAliases(req.query.type, ['all', 'movies', 'shows', 'seasons', 'episodes'], 'type'));
         const limit = paramParser.number(req.query.limit, 'limit');
         const last_x_days = paramParser.number(req.query.last_x_days, 'last_x_days');
 
@@ -71,7 +72,7 @@ router.get('/', async (req, res, next) => {
  */
 router.get('/get-by-date-range', async (req, res, next) => {
     try {
-        const type = /** @type {Props.HistoryFilterType|undefined} */ (paramParser.enum(req.query.type, ['all', 'movies', 'shows', 'seasons', 'episodes'], 'type'));
+        const type = /** @type {Props.HistoryFilterType|undefined} */ (parseTraktTypeWithAliases(req.query.type, ['all', 'movies', 'shows', 'seasons', 'episodes'], 'type'));
         const startAt = paramParser.dateStrict(req.query.start_at, 'start_at');
         const endAt = paramParser.dateStrict(req.query.end_at, 'end_at');
 

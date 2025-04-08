@@ -2,6 +2,7 @@ import express from 'express';
 
 import dataService from '../services/data-service.js';
 import { DEFAULT_LIMITS } from '../trakt/client.js';
+import { parseTraktTypeWithAliases } from '../trakt/trakt-utils.js';
 import { paramParser } from '../utils/param-parser.js';
 import { createApiResponse } from '../utils/utils.js';
 
@@ -24,7 +25,7 @@ const router = express.Router();
  */
 router.get('/', async (req, res, next) => {
     try {
-        const type = /** @type {Props.RatingsFilterType|undefined} */ (paramParser.enum(req.query.type, ['all', 'movies', 'shows', 'seasons', 'episodes'], 'type'));
+        const type = /** @type {Props.RatingsFilterType|undefined} */ (parseTraktTypeWithAliases(req.query.type, ['all', 'movies', 'shows', 'seasons', 'episodes'], 'type'));
         const minRating = paramParser.number(req.query.min_rating, 'min_rating');
         const maxRating = paramParser.number(req.query.max_rating, 'max_rating');
         const limit = paramParser.number(req.query.limit, 'limit');

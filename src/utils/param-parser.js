@@ -198,9 +198,10 @@ export const paramParser = {
      * @param {string} [paramName='<enum>'] - Name of the parameter for error messages
      * @param {object} [options={}] - Options for parsing
      * @param {boolean} [options.matchCase=false] - Whether to match the case of the enum value
+     * @param {Record<string, string[]>} [options.acceptedAliases={}] - Accepted aliases for the enum values
      * @returns {string|undefined} - The parsed enum value if it is a valid enum value
      */
-    enum(param, enumValues, paramName = '<enum>', { matchCase = false } = {}) {
+    enum(param, enumValues, paramName = '<enum>', { matchCase = false, acceptedAliases = {} } = {}) {
         if (param === null || param === undefined) {
             return undefined;
         }
@@ -214,7 +215,17 @@ export const paramParser = {
 
         const values = Array.isArray(enumValues) ? enumValues : Object.values(enumValues);
         const validValues = matchCase ? values : values.map(v => v.toLowerCase());
-        const paramValue = matchCase ? param : param.toLowerCase();
+        let paramValue = matchCase ? param : param.toLowerCase();
+
+        // Check if the paramValue is an accepted alias
+        if (acceptedAliases) {
+            for (const enumKey in acceptedAliases) {
+                if (acceptedAliases[enumKey].map(alias => matchCase ? alias : alias.toLowerCase()).includes(paramValue)) {
+                    paramValue = matchCase ? enumKey : enumKey.toLowerCase();
+                    break;
+                }
+            }
+        }
 
         if (!validValues.includes(paramValue)) {
             throw new ParameterValidationError(paramName,
@@ -234,10 +245,11 @@ export const paramParser = {
      * @param {string} [paramName='<enum>'] - Name of the parameter for error messages
      * @param {object} [options={}] - Options for parsing
      * @param {boolean} [options.matchCase=false] - Whether to match the case of the enum value
+     * @param {Record<string, string[]>} [options.acceptedAliases={}] - Accepted aliases for the enum values
      * @returns {string} - The parsed enum value if it is a valid enum value
      */
-    enumStrict(param, enumValues, paramName = '<enum>', { matchCase = false } = {}) {
-        const enumValue = this.enum(param, enumValues, paramName, { matchCase });
+    enumStrict(param, enumValues, paramName = '<enum>', { matchCase = false, acceptedAliases = {} } = {}) {
+        const enumValue = this.enum(param, enumValues, paramName, { matchCase, acceptedAliases });
         if (enumValue !== undefined) return enumValue;
         throw new ParameterValidationError(paramName, 'missing_required', 'Required parameter cannot be null or undefined');
     },
