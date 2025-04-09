@@ -24,6 +24,7 @@
  * @property {'rating'|'rated_at'} [sortBy='rated_at'] - Field to sort by
  * @property {'asc'|'desc'} [order='desc'] - Sort order
  * @property {boolean} [includeUnwatched=false] - Whether to include items that haven't been watched
+ * @property {boolean} [includeStats=true] - Whether to include statistics
  */
 /** @typedef {'all'|'movies'|'shows'|'seasons'|'episodes'} RatingsFilterType */
 

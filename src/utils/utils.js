@@ -25,16 +25,35 @@ export async function parseJson(response) {
  * @param {T[]} data - The response data array
  * @param {object} pagination - Pagination metadata
  * @param {number} pagination.itemCount - Total number of items available
+ * @param {object} [options={}] - Optional parameters
+ * @param {Record<string, *>|undefined} [options.additionalData] - Additional data to include in the response
+ * @param {boolean} [options.addAfter=false] - Whether to add additional data after the data array
  * @returns {ApiResponse<T>} - Standardized response object
  */
-export function createApiResponse(data, pagination) {
+export function createApiResponse(data, pagination, { additionalData = undefined, addAfter = false } = {}) {
     return {
         count: data.length,
         total: pagination.itemCount ?? data.length,
         _info: undefined,
         _tips: undefined,
+        ...(!addAfter ? additionalData : {}),
         data,
+        ...(addAfter ? additionalData : {}),
     };
+}
+
+/**
+ * Creates a standardized API response object
+ * @template T
+ * @param {object} options - Options for creating the response
+ * @param {T[]} options.data - The response data array
+ * @param {{itemCount: number}} options.pagination - Pagination metadata
+ * @param {Record<string, *>|undefined} [options.additionalData] - Additional data to include in the response
+ * @param {boolean} [options.addAfter=false] - Whether to add additional data after the data array
+ * @returns {ApiResponse<T>} - Standardized response object
+ */
+export function createApiResponseFromProps({ data, pagination, additionalData = undefined, addAfter = false }) {
+    return createApiResponse(data, pagination, { additionalData, addAfter });
 }
 
 /**

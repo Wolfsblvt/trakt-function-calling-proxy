@@ -4,7 +4,7 @@ import dataService from '../services/data-service.js';
 import { DEFAULT_LIMITS } from '../trakt/client.js';
 import { parseTraktTypeWithAliases } from '../trakt/trakt-utils.js';
 import { paramParser } from '../utils/param-parser.js';
-import { createApiResponse } from '../utils/utils.js';
+import { createApiResponseFromProps } from '../utils/utils.js';
 
 /** @import * as Props from '../trakt/types/props-types.js' */
 
@@ -21,6 +21,7 @@ const router = express.Router();
  * @param {'rating'|'rated_at'} [sort_by='rated_at'] - Field to sort by
  * @param {'asc'|'desc'} [order='desc'] - Sort order
  * @param {boolean} [include_unwatched=false] - Whether to include items that haven't been watched
+ * @param {boolean} [include_stats=true] - Whether to include statistics
  * @returns {Promise<ApiResponse<Flattened.FlattenedRatingItem>>} - The user's ratings
  */
 router.get('/', async (req, res, next) => {
@@ -32,6 +33,7 @@ router.get('/', async (req, res, next) => {
         const sortBy = /** @type {'rating'|'rated_at'|undefined} */ (paramParser.enum(req.query.sort_by, ['rating', 'rated_at'], 'sort_by'));
         const order = /** @type {'asc'|'desc'|undefined} */ (paramParser.enum(req.query.order, ['asc', 'desc'], 'order'));
         const includeUnwatched = paramParser.boolean(req.query.include_unwatched, 'include_unwatched');
+        const includeStats = paramParser.boolean(req.query.include_stats, 'include_stats');
 
         /** @type {Props.GetRatingsProps & Props.PaginationProps} */
         const props = {
@@ -42,11 +44,12 @@ router.get('/', async (req, res, next) => {
             sortBy: sortBy ?? 'rated_at',
             order: order ?? 'desc',
             includeUnwatched: includeUnwatched ?? false,
+            includeStats: includeStats ?? true,
         };
 
         const ratings = await dataService.getRatings(props);
 
-        const response = createApiResponse(ratings.data, ratings.pagination);
+        const response = createApiResponseFromProps(ratings);
 
         // Add helpful tips
         response._tips = [

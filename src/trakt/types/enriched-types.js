@@ -13,4 +13,19 @@
  * @property {string} [favorite_note] - Optional note associated with favorite
  */
 
+/**
+ * @typedef {object} EnrichedRatingsStats
+ * @property {string} _info - Informational message
+ * @property {number} total - Total number of ratings
+ * @property {Trakt.StatsRatingsDistribution} distribution - Distribution of ratings
+ * @property {number} [avg] - Average rating
+ * @property {number} [median] - Median rating
+ * @property {number} [mode] - Mode rating
+ * @property {number} [std_dev] - Standard deviation of ratings
+ * @property {number[]} [rating_spread] - Spread of ratings
+ * @property {number} [percent_8_and_above] - Percentage of ratings 8 and above
+ * @property {number} [percent_9_and_above] - Percentage of ratings 9 and above
+ * @property {number} [percent_10s] - Percentage of ratings 10
+ */
+
 export { };
