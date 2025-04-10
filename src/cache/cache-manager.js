@@ -1,4 +1,7 @@
+import moment from 'moment';
 import storage from 'node-persist';
+
+import { formatNumberWithSign, getStringifiedValue } from '../utils/utils.js';
 
 /**
  * Cache types enum
@@ -66,17 +69,26 @@ class CacheManager {
     /**
      * Creates a cache key based on endpoint and parameters
      * @param {string} cacheType - The type of cache (e.g., 'history', 'ratings')
-     * @param {object} [params={}] - Query parameters to include in the key
+     * @param {any[]} [params=[]] - Query parameters to include in the key
      * @returns {string} - The cache key
      */
-    createKey(cacheType, params = {}) {
-        const sortedParams = Object.entries(params)
-            .filter(([_, value]) => value !== undefined && value !== null)
-            .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
-            .map(([key, value]) => `${key}=${value}`)
-            .join('&');
+    createKey(cacheType, params = []) {
+        const keyParts = [cacheType];
 
-        return sortedParams ? `${cacheType}?${sortedParams}` : cacheType;
+        for (const param of params) {
+            if (typeof param === 'object' && param !== null) {
+                const sortedParams = Object.entries(param)
+                    .filter(([_, value]) => value !== undefined && value !== null)
+                    .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+                    .map(([key, value]) => `${key}=${getStringifiedValue(value)}`)
+                    .join('&');
+                keyParts.push(`?${sortedParams}`);
+            } else {
+                keyParts.push(`:${getStringifiedValue(param)}`);
+            }
+        }
+
+        return keyParts.join('');
     }
 
     /**
@@ -102,7 +114,14 @@ class CacheManager {
         const diskItem = await storage.getItem(key);
         if (diskItem !== undefined && diskItem !== null) {
             // Also store in memory for faster access next time
-            await this.set(key, diskItem, { memoryOnly: true });
+            // The typedocs are wrong, this is a promise function
+            // eslint-disable-next-line @typescript-eslint/await-thenable
+            const storeDatum = await storage.getDatum(key);
+            const ttlMilliseconds = storeDatum?.ttl ? Math.max(0, storeDatum.ttl - Date.now()) : undefined;
+            if (ttlMilliseconds !== 0) {
+                await this.set(key, diskItem, { memoryOnly: true, ttl: ttlMilliseconds ? Math.round(ttlMilliseconds / 1_000) : ttlMilliseconds });
+            }
+            console.debug(`Retrieved ${key} from disk cache, restored to memory cache with TTL ${(ttlMilliseconds ? moment.duration(ttlMilliseconds, 'milliseconds').humanize() : 'undefined')}`);
             return diskItem;
         }
 
@@ -116,17 +135,24 @@ class CacheManager {
      * @param {object} [options={}] - Cache options
      * @param {number|null} [options.ttl=null] - Time to live in seconds
      * @param {boolean} [options.memoryOnly=false] - Whether to store only in memory
+     * @param {boolean} [options.useFuzzyTtl=false] - Whether to use fuzzy TTL (randomizing TTL by +-10% to not bulk refreshes at the exact sime time)
      * @returns {Promise<boolean>} - Whether the operation was successful
      */
-    async set(key, value, { ttl = null, memoryOnly = false } = {}) {
+    async set(key, value, { ttl = null, memoryOnly = false, useFuzzyTtl = false } = {}) {
+        // Define actual TTL in seconds
+        const actualTtl = useFuzzyTtl && ttl ? Math.round(ttl * (1 + (Math.random() * 0.2 - 0.1))) : ttl;
+
         // Calculate expiration time for memory cache
-        const expiresAt = ttl ? Date.now() + (ttl * 1_000) : undefined;
+        const expiresAt = actualTtl ? Date.now() + (actualTtl * 1_000) : undefined;
         this.#memoryCache.set(key, { value, expiresAt });
 
         // Also set in disk cache unless memory-only is specified
         if (!memoryOnly) {
-            await storage.setItem(key, value, { ttl: ttl ? ttl * 1_000 : undefined });
-        }
+            await storage.setItem(key, value, { ttl: actualTtl ? actualTtl * 1_000 : undefined });
+        };
+        const fuzzyDisplay = formatNumberWithSign(useFuzzyTtl && actualTtl && ttl ? Math.round(((actualTtl / ttl) - 1) * 100) : undefined, { suffix: '%' });
+        console.debug(`Set ${key} in cache with TTL ${(actualTtl ? moment.duration(actualTtl, 'seconds').humanize() : 'undefined')}${fuzzyDisplay ? ` (${fuzzyDisplay})` : ''}${memoryOnly ? ' (memory-only)' : ''}`);
+
         return true;
     }
 

@@ -84,8 +84,8 @@ class CachedTraktClient {
             || methodNameType;
 
         // Return a function that wraps the original method with caching
-        return async (params = {}) => {
-            const forceRefresh = params.forceRefresh ?? this.#forceRefresh;
+        return async (...args) => {
+            const forceRefresh = args?.[0]?.forceRefresh ?? this.#forceRefresh;
 
             // Reset the context flag after this call
             if (this.#forceRefresh) {
@@ -94,8 +94,8 @@ class CachedTraktClient {
 
             return await this.#cachedRequest(
                 cacheType,
-                (/** @type {any} */ p) => this.#traktClient[methodName](p),
-                params,
+                (/** @type {any} */ p) => this.#traktClient[methodName](...p),
+                args,
                 { forceRefresh },
             );
         };
@@ -114,7 +114,7 @@ class CachedTraktClient {
      */
     async #cachedRequest(cacheType, fetchFunction, params = {}, { forceRefresh = false, ttl } = {}) {
         const cacheKey = cacheManager.createKey(cacheType, params);
-        const effectiveTtl = ttl || DEFAULT_TTL[cacheType] || 300; // Default to 5 minutes if not specified
+        const effectiveTtl = ttl || DEFAULT_TTL[cacheType] || DEFAULT_TTL.DEFAULT;
 
         // Return cached data if available and not forcing refresh
         if (!forceRefresh) {
@@ -129,7 +129,7 @@ class CachedTraktClient {
         try {
             const freshData = await fetchFunction(params);
             // Cache the fresh data
-            await cacheManager.set(cacheKey, freshData, { ttl: effectiveTtl });
+            await cacheManager.set(cacheKey, freshData, { ttl: effectiveTtl, useFuzzyTtl: true });
             return freshData;
         } catch (error) {
             // If forcing refresh and it fails, try to return stale data

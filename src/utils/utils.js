@@ -115,4 +115,34 @@ export function itemTypeMatchesFilter(item_type, type_filter) {
     }
 }
 
+/**
+ * Converts a value to a string in a standardized way.
+ * If the value is a string, it is returned as-is.
+ * If the value is a number, it is converted to a string using the default string representation.
+ * If the value is a boolean, it is converted to the string "true" or "false".
+ * If the value is a Date, it is converted to an ISO string.
+ * Otherwise, the value is converted to a JSON string.
+ * @param {any} value - The value to stringify
+ * @returns {string} - The stringified value
+ */
+export function getStringifiedValue(value) {
+    if (typeof value === 'string') return value;
+    if (typeof value === 'number') return value.toString();
+    if (typeof value === 'boolean') return value ? 'true' : 'false';
+    if (value instanceof Date) return value.toISOString();
+    return JSON.stringify(value);
+}
 
+/**
+ * Formats a number with a plus or minus sign in front.
+ * If the number is 0, it just returns zero.
+ * @param {number|undefined} number - The number to format
+ * @param {object} [options={}] - Optional parameters
+ * @param {string} [options.suffix=''] - Suffix to add to the formatted string
+ * @returns {string|undefined} - The formatted string
+ */
+export function formatNumberWithSign(number, { suffix = '' } = {}) {
+    if (number === undefined) return undefined;
+    if (number === 0) return '0';
+    return number > 0 ? `+${number}${suffix}` : `-${Math.abs(number)}${suffix}`;
+}
